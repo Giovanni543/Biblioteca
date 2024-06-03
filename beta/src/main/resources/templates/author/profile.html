@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head>
+        <title>Profile</title>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" 
+              rel="stylesheet" 
+              integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" 
+              crossorigin="anonymous">
+    </head>
+    <body>
+        <nav th:replace="fragments/fragments::navbar"></nav>
+        <h1>Perfil de Autor</h1>
+            <form class="form container m-5 justify-content-between float-left">
+                <div class="mb-3">
+                    <label for="InputRole" class="form-label">ID:</label>
+                    <input type="Role" readonly class="form-control" th:value="${author.id}" id="Password">
+                </div>
+                <div class="mb-3">
+                    <label for="InputEmail" class="form-label">Direccion de mail:</label>
+                    <input type="email" readonly class="form-control" th:value="${author.email}" id="exampleInputEmail1" >
+                </div>
+                <div class="mb-3">
+                    <label for="InputPassword" class="form-label">Contraseña:</label>
+                    <input type="password" readonly class="form-control" th:value="${author.password}" id="Password">
+                </div>
+                <div class="mb-3">
+                    <label for="InputName" class="form-label">Nombre:</label>
+                    <input type="text" readonly class="form-control" th:value="${author.name}" id="Name">
+                </div>
+                <div class="mb-3">
+                    <label for="InputLastName" class="form-label">Apellido:</label>
+                    <input type="text" readonly class="form-control" th:value="${author.lastName}" id="Lastname">
+                </div>
+                <div class="mb-3">
+                    <label for="InputDNI" class="form-label">DNI:</label>
+                    <input type="text" readonly class="form-control" th:value="${author.Dni}" id="DNI">
+                </div>
+                <div class="mb-3">
+                    <label for="InputRole" class="form-label">Rol:</label>
+                    <input type="Role" readonly class="form-control" th:value="${author.role}" id="Password">
+                </div>
+                <a href="/author/edit-profile" class="btn btn-outline-success my-sm-0">Editar Perfil</a>
+
+                <p th:if="${error != null}" th:text="${error}" style="color : red;"></p>
+            </form>
+        <div class="container float-right">
+            <img th:value="${author.picture}" class="rounded-circle mx-auto d-block" width="250" height="250"></img>
+        </div>
+        
+        
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" 
+                integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" 
+                crossorigin="anonymous">
+        </script>
+    </body>
+</html>

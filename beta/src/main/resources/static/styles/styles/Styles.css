@@ -1,0 +1,37 @@
+/* 
+    Created on : 15/04/2024, 15:17:23
+    Author     : giova
+*/
+.rounded{
+    border-radius: 50%
+}
+
+.form-block{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 50%;
+    margin: 2em auto; 
+}
+
+.box1{
+    float: right;
+    margin-right: 6%;
+    margin-top: 5%;
+}
+
+.s1{
+    width: 25%;
+    max-width: 300px;
+    height: 500px;
+    border: solid;
+    border-left: none;
+    text-align: center;
+    background-color: var(--buttons--);
+}
+
+.profile-image{
+    float: right;
+    margin-right: 6%;
+    margin-top: 5%;
+}

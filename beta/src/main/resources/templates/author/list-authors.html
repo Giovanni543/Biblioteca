@@ -39,8 +39,8 @@
                         <td th:text="${author.lastName}"></td>
                         <td th:text="${author.email}"></td>
                         <td th:text="${author.dni}"></td>
-                        <td sec:authorize="hasAnyRole('ADMIN')"><a href="/"><i class="fa-solid fa-eye"></i></a></td><!--Va a el perfil del autor a ver sus atributos y que libros ah publicado-->
-                        <td sec:authorize="hasAnyRole('ADMIN')"></td>
+                        <td><a href="/"><i class="fa-solid fa-eye"></i></a></td><!--Va a el perfil del autor a ver sus atributos y que libros ah publicado-->
+                        <td sec:authorize="hasAnyRole('ADMIN')"><a href="/"><i class="fa-regular fa-pen-to-square"></i></a></td><!--tengo que poder editar un autor sin estar logeado en la cuenta de ese autor-->
                     </tr>
                 </tbody>
             </table>

@@ -22,8 +22,9 @@
                             <a class="nav-link active" href="/login">Inicia sesión</a>
                         </div>
                         <div>
-                            <a sec:authorize="hasAnyRole('USER')" class="nav-link active" href="/customer/profile">Perfil</a>
+                            <a sec:authorize="hasAnyRole('USER')"class="nav-link active" href="/customer/profile">Perfil</a>
                             <a sec:authorize="hasAnyRole('AUTHOR')" class="nav-link active" href="/author/profile">Perfil</a>
+                            <a sec:authorize="hasAnyRole('ADMIN')"class="nav-link active" href="/customer/profile">Perfil</a>
                         </div>
                         <div>
                             <a sec:authorize="hasAnyRole('ADMIN')" class="nav-link active" href="/customer">Lista de customers</a>
@@ -42,7 +43,7 @@
                         <a class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
                             <img src="https://github.com/mdo.png" alt="mdo" width="50" height="50" class="rounded-circle">
                         </a>
-                        <ul sec:authorize="hasAnyRole('USER')" class="dropdown-menu text-small" aria-labelledby="dropdownUser1">
+                        <ul th:if="${#authorization.expression('hasAnyRole(''ADMIN'')') or #authorization.expression('hasAnyRole(''USER'')')}"class="dropdown-menu text-small" aria-labelledby="dropdownUser1">
                             <li><a class="dropdown-item" href="/customer/profile">Perfil</a></li>
                             <li><a class="dropdown-item" href="/customer/edit-profile">Editar perfil</a></li>
                             <li><hr class="dropdown-divider"></li>

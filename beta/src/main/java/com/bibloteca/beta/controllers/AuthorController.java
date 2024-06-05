@@ -36,7 +36,7 @@ public class AuthorController {
     }
 
     @GetMapping("/form")
-    public String ShowForm(ModelMap model, @RequestParam(required = false) String id) throws Exception {
+    public String ShowForm(ModelMap model, @RequestParam(required = false) String id){
         try {
             if (id == null) {
                 model.addAttribute("author", new Author());
@@ -53,7 +53,7 @@ public class AuthorController {
     }
 
     @PostMapping("/form")
-    public String SaveAuthor(@ModelAttribute Author author, ModelMap model, RedirectAttributes attr) throws Exception {//sobre el ModelMap
+    public String SaveAuthor(@ModelAttribute Author author, ModelMap model, RedirectAttributes attr){//sobre el ModelMap
         try {
             ArrayList<Book> books = new ArrayList<>();
             author.setListBook(books);
@@ -69,7 +69,7 @@ public class AuthorController {
     }
 
     @GetMapping("/profile")
-    public String profile(ModelMap model, HttpSession http) throws Exception {
+    public String profile(ModelMap model, HttpSession http){
         try {
             Author author = (Author) http.getAttribute("authorsession");
             model.addAttribute("author", author);
@@ -98,7 +98,7 @@ public class AuthorController {
 
     @PostMapping("/addBook")
     @PreAuthorize("hasAnyRole('ROLE_AUTHOR')")
-    public String saveBook(HttpSession http, @ModelAttribute Author author, @ModelAttribute Book book, RedirectAttributes attr) throws Exception {
+    public String saveBook(HttpSession http, @ModelAttribute Author author, @ModelAttribute Book book, RedirectAttributes attr){
         try {
             System.out.println("entro en el post");
             author = (Author) http.getAttribute("authorsession");

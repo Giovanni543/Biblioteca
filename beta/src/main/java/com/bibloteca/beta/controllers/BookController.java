@@ -34,7 +34,7 @@ public class BookController {
 
     @GetMapping("/form")
     @PreAuthorize("hasAnyRole('ROLE_AUTHOR')")
-    public String showForm(ModelMap model, @RequestParam(required = false) String id) throws Exception {
+    public String showForm(ModelMap model, @RequestParam(required = false) String id){
         try {
             if (id == null) {
                 model.addAttribute("book", new Book());

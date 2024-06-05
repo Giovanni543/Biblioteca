@@ -25,7 +25,6 @@ public class CustomerController {
     public CustomerController(CustomerService customerService) {
         this.customerService = customerService;
     }
-    //prueba para hacer commit y push
 
     //En la pag de customer va a aparecer una lista de todos los customers
     //una opcion para editar la cuenta con la que se ingreso
@@ -38,7 +37,7 @@ public class CustomerController {
     }
 
     @GetMapping("/form")
-    public String showForm(ModelMap model, @RequestParam(required = false) String id) throws Exception {
+    public String showForm(ModelMap model, @RequestParam(required = false) String id){
         try {
             if (id == null) {
                 model.addAttribute("customer", new Customer());
@@ -55,7 +54,7 @@ public class CustomerController {
     }
 
     @PostMapping("/form")
-    public String saveCustomer(@ModelAttribute Customer customer, ModelMap model, RedirectAttributes attr) throws Exception {
+    public String saveCustomer(@ModelAttribute Customer customer, ModelMap model, RedirectAttributes attr){
         try {
             customerService.saveNew(customer);
             System.out.println("Customer ah sido guardado :)");
@@ -69,7 +68,7 @@ public class CustomerController {
     }
 
     @GetMapping("/profile")
-    public String showProfile(ModelMap model, HttpSession session) throws Exception {
+    public String showProfile(ModelMap model, HttpSession session){
         try {
             Customer customer = (Customer) session.getAttribute("customersession");
             model.addAttribute("customer", customer);
@@ -81,11 +80,10 @@ public class CustomerController {
     }
 
     @GetMapping("/edit-profile")
-    public String editProfile(ModelMap model, HttpSession http) throws Exception {
+    public String editGet(ModelMap model, HttpSession http){
         try {
             Customer customer = (Customer) http.getAttribute("customersession");
             model.addAttribute("customer", customer);
-            model.addAttribute("id",  customer.getId());
             System.out.println("customer get: "+ customer.toString());
             System.out.println("1");
             return "/customer/edit-profile";
@@ -98,13 +96,14 @@ public class CustomerController {
     
 
     @PostMapping("edit-profile")
-    public String editProfile(Customer customer, HttpSession http, RedirectAttributes attr) throws Exception {//no funciona, tengo que traer el id y no consigo traerla a esta función
+    public String editPost(@RequestParam String id, Customer customer, ModelMap model, RedirectAttributes attr){//no funciona, tengo que traer el id y no consigo traerla a esta función
         try {
             //System.out.println("id:  " +id);
             //System.out.println("cusomer:  " +customer.getId());
             //customer = customerService.findById(id);
             
-            customer = (Customer) http.getAttribute("customersession");
+            //customer = (Customer) http.getAttribute("customersession");
+            customer = customerService.findById(id);
             System.out.println(customer.toString());
             customerService.save(customer);
             System.out.println("customer post: "+customer.toString());

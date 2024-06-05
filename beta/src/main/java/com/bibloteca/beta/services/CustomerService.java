@@ -48,7 +48,7 @@ public class CustomerService implements UserDetailsService{
         customerRepository.save(customer);
     }
     
-    private void activateIfNew(Customer customer){
+    private void activateIfNew(Customer customer) throws Exception{
         if (customer.getActive() == null || customer.getActive().equals(false)) {
             customer.setActive(Boolean.TRUE);
             customer.setRole(Role.USER);
@@ -56,7 +56,7 @@ public class CustomerService implements UserDetailsService{
     }
 
     @Transactional
-    public Customer findById(String id) throws Exception {
+    public Customer findById(String id) throws Exception{
         Customer customer = customerRepository.getById(id);//findById
         if (customer == null) {
             throw new Exception("No se encontro al usuario con ese Id");

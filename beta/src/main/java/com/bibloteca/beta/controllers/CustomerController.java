@@ -25,6 +25,7 @@ public class CustomerController {
     public CustomerController(CustomerService customerService) {
         this.customerService = customerService;
     }
+    //prueba para hacer commit y push
 
     //En la pag de customer va a aparecer una lista de todos los customers
     //una opcion para editar la cuenta con la que se ingreso

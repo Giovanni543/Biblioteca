@@ -44,7 +44,8 @@ public class CustomerService implements UserDetailsService{
     }
     
     @Transactional(value = Transactional.TxType.REQUIRED, rollbackOn = Exception.class)
-    public void save(Customer customer)throws Exception{
+    public void save(Customer customer)throws Exception{//si edito la contraseña de una cuenta, tendria que pasar de nuevo por el passwordEncoder?
+        validate(customer);
         customerRepository.save(customer);
     }
     

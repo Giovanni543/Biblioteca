@@ -68,9 +68,10 @@ public class CustomerController {
     }
 
     @GetMapping("/profile")
-    public String showProfile(ModelMap model, HttpSession session){
+    public String showProfile(@RequestParam String id, ModelMap model, HttpSession session){
         try {
-            Customer customer = (Customer) session.getAttribute("customersession");
+            Customer customer = customerService.findById(id);
+            //Customer customer = (Customer) session.getAttribute("customersession");
             model.addAttribute("customer", customer);
             return "/customer/profile";
         } catch (Exception e) {
@@ -82,6 +83,7 @@ public class CustomerController {
     @GetMapping("/edit-profile")
     public String editGet(ModelMap model, HttpSession http){
         try {
+            
             Customer customer = (Customer) http.getAttribute("customersession");
             model.addAttribute("customer", customer);
             System.out.println("customer get: "+ customer.toString());
@@ -94,16 +96,13 @@ public class CustomerController {
         }
     }
     
-
     @PostMapping("edit-profile")
-    public String editPost(@RequestParam String id, Customer customer, ModelMap model, RedirectAttributes attr){//no funciona, tengo que traer el id y no consigo traerla a esta función
+    public String editPost(@ModelAttribute Customer customer, ModelMap model, RedirectAttributes attr){//no funciona, tengo que traer el id y no consigo traerla a esta función
         try {
-            //System.out.println("id:  " +id);
-            //System.out.println("cusomer:  " +customer.getId());
             //customer = customerService.findById(id);
             
             //customer = (Customer) http.getAttribute("customersession");
-            customer = customerService.findById(id);
+            //customer = customerService.findById(id);
             System.out.println(customer.toString());
             customerService.save(customer);
             System.out.println("customer post: "+customer.toString());

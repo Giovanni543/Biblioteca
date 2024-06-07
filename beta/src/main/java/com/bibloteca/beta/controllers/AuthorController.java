@@ -57,9 +57,7 @@ public class AuthorController {
         try {
             ArrayList<Book> books = new ArrayList<>();
             author.setListBook(books);
-            System.out.println("se instanció y guardo el arraylist del autor");
             authorService.saveNew(author);
-            System.out.println("Author guardado :)");
             return "/author/profile";
         } catch (Exception e) {
             attr.addFlashAttribute("error", e.getMessage());
@@ -87,11 +85,9 @@ public class AuthorController {
             author = (Author) http.getAttribute("authorsession");//capaz que no haga falta en el get
             model.addAttribute("book", new Book());
             model.addAttribute("author", author);
-            System.out.println("se logro el get");
             return "/book/addBook";
         } catch (Exception e) {
             model.put("error", e.getMessage());
-            System.out.println("todo mal");
             return "/book/addBook";
         }
     }
@@ -100,7 +96,6 @@ public class AuthorController {
     @PreAuthorize("hasAnyRole('ROLE_AUTHOR')")
     public String saveBook(HttpSession http, @ModelAttribute Author author, @ModelAttribute Book book, RedirectAttributes attr){
         try {
-            System.out.println("entro en el post");
             author = (Author) http.getAttribute("authorsession");
             authorService.assignBook(book, author);
             System.out.println("libro con autor guardado");

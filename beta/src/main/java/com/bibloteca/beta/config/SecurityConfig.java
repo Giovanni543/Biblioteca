@@ -18,13 +18,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
     
     @Autowired
     public CustomerService customerService;
-    @Autowired
-    public AuthorService authorService;
+    //@Autowired
+    //public AuthorService authorService;
     
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth)throws Exception{
         auth.userDetailsService(customerService).passwordEncoder(new BCryptPasswordEncoder());
-        auth.userDetailsService(authorService).passwordEncoder(new BCryptPasswordEncoder());
+        //auth.userDetailsService(authorService).passwordEncoder(new BCryptPasswordEncoder());
     }
     
     
@@ -43,6 +43,5 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
                 .logout().logoutUrl("/logout")
                 .logoutSuccessUrl("/login").permitAll()
                 .and().csrf().disable();
-                
     }
 }

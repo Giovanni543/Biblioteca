@@ -73,6 +73,15 @@ public class CustomerService implements UserDetailsService{
         }
         return customers;
     }
+    
+    @Transactional
+    public Customer findyEmail(String email)throws Exception{
+        Customer customer = customerRepository.findByEmail(email);
+        if(customer == null){
+            throw new Exception ("No se encontro a ningun usuario con dicho email");
+        }
+        return customer;
+    }
 
     @Transactional
     public List<Customer> getAll() {

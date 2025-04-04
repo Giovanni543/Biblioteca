@@ -106,6 +106,7 @@ public class AuthorService implements UserDetailsService {
     @Transactional
     public void assignBook(Book book, Author author) throws Exception {
         book.setAuthor(author);
+        //book.setAuthorFullName(author.getFullName());
         
         bookService.validate(book);
         bookService.save(book);
@@ -113,6 +114,7 @@ public class AuthorService implements UserDetailsService {
         ArrayList<Book> books = author.getListBook();
         
         books.add(book);
+        //author.setListBook(books);????
         System.out.println("Se agrego el libro a la lista en el índice " + books.size());
 
         int i = 1;

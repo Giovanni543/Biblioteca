@@ -142,6 +142,8 @@ public class Author implements Serializable {//implements serializable??
         this.listBook = listBook;
     }
 
-    
+    /*public String getFullName(){
+        return this.name + " " + this.lastName;
+    }*/
     
 }

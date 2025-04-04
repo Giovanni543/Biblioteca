@@ -15,7 +15,7 @@
 
         <div class="border-bottom d-flex justify-content-between container">
             <h1>Lista de Libros</h1>
-            <a sec:authorize="hasAnyRole('AUTHOR')" class="d-flex btn btn-info align-self-center" th:href="@{/author/addBook}">Nuevo Libro</a>
+            <a sec:authorize="hasAnyRole('AUTHOR')" class="d-flex btn btn-info align-self-center" href="/author/addBook">Nuevo Libro</a>
         </div>
         <div class="container">
             <table class="table table-striped table-hover">
@@ -37,7 +37,7 @@
                         <th scope="row" th:text="${book.picture}"></th>
                         <td th:text="${book.name}"></td>
                         <td th:text="${book.category}"></td>
-                        <!--<td th:text="${book.authorFullName}"></td>-->
+                        <td th:text="${book.author}"></td>
                         <td th:text="${book.stock}"></td>
                         <td th:text="${book.pages}"></td>
                         <td th:text="${book.price}"></td>

@@ -33,7 +33,6 @@ public class Book implements Serializable{//no van a haber 20 ojetos del libro x
     private String name;
     private String picture;
     //private String backCover;
-    //private String authorFullName;
     private Integer stock;
     private Integer pages;
     private Double price;

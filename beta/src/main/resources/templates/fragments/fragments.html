@@ -33,21 +33,15 @@
                             
                     </form>
                     <!--<a sec:authorize="hasAnyRole('USER')"class="nav-link active" href="/customer/profile">Perfil</a>-->
-                    <div sec:authorize="isAuthenticated()" class="dropdown text-end">
+                    <div sec:authorize="isAuthenticated()" class="dropdown text-end" th:if="${session.customersession != null}">
                         <a class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
                             <img src="https://github.com/mdo.png" alt="mdo" width="50" height="50" class="rounded-circle">
                         </a>
-                        <ul th:if="${#authorization.expression('hasAnyRole(''ADMIN'')') or #authorization.expression('hasAnyRole(''USER'')')}"class="dropdown-menu text-small" aria-labelledby="dropdownUser1">
-                            <li><a class="dropdown-item" href="/customer/profile">Perfil</a></li>
-                            <li><a class="dropdown-item" href="/customer/edit-profile">Editar perfil</a></li>
+                        <ul class="dropdown-menu text-small" aria-labelledby="dropdownUser1">
+                            <li><a class="dropdown-item" th:href="@{/customer/profile}">Perfil</a></li>
+                            <li><a class="dropdown-item" th:href="@{/customer/edit-profile}">Editar perfil</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="/logout">Cerrar Sesión</a></li>
-                        </ul>
-                        <ul sec:authorize="hasAnyRole('AUTHOR')" class="dropdown-menu text-small" aria-labelledby="dropdownUser1">
-                            <li><a class="dropdown-item" href="/author/profile">Perfil</a></li>
-                            <li><a class="dropdown-item" href="/author/edit-profile">Editar perfil</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="/logout">Cerrar Sesión</a></li>
+                            <li><a class="dropdown-item" th:href="@{/logout}">Cerrar Sesión</a></li>
                         </ul>
                     </div>
 

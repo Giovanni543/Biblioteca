@@ -68,9 +68,11 @@ public class CustomerController {
     }
 
     @GetMapping("/profile")
-    public String showProfile(ModelMap model, HttpSession session){
+    public String showProfile(ModelMap model, HttpSession http){
         try {
-            Customer customer = (Customer) session.getAttribute("customersession");
+            Customer customer = (Customer) http.getAttribute("customersession");
+            //Customer customer = customerService.findById(id);
+            //Customer customer = (Customer) session.getAttribute("customersession");
             model.addAttribute("customer", customer);
             return "/customer/profile";
         } catch (Exception e) {

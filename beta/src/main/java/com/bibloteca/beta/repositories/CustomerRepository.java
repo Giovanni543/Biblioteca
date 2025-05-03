@@ -17,6 +17,7 @@ public interface CustomerRepository extends JpaRepository <Customer, String> {
     @Query("SELECT c FROM Customer c ORDER BY name")//Trae lista de todos los autores organizados por nombre
     public List<Customer> getAllOrganized();
     
-    public Customer findByEmail(String email);
+    @Query("SELECT c FROM Customer c WHERE c.email LIKE : email")
+    public Customer findByEmail(@Param("email") String email);
     
 }

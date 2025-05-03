@@ -18,7 +18,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/customer")
 public class CustomerController {
-
+    //kkk
     private CustomerService customerService;
 
     @Autowired
@@ -70,9 +70,14 @@ public class CustomerController {
     @GetMapping("/profile")
     public String showProfile(ModelMap model, HttpSession http){
         try {
+            //Customer customer = customerService.findById(id);
             Customer customer = (Customer) http.getAttribute("customersession");
+            System.out.println("cc"+ customer.toString());
+
+            //Customer customer = (Customer) http.getAttribute("customersession");
             //Customer customer = customerService.findById(id);
             //Customer customer = (Customer) session.getAttribute("customersession");
+            //f7531118e87ce45d57836c4f997e3754b49979d6
             model.addAttribute("customer", customer);
             return "/customer/profile";
         } catch (Exception e) {
@@ -98,17 +103,21 @@ public class CustomerController {
     
 
     @PostMapping("edit-profile")
-    public String editPost(@RequestParam String id, Customer customer, ModelMap model, RedirectAttributes attr){//no funciona, tengo que traer el id y no consigo traerla a esta función
+    public String editPost(Customer customer, ModelMap model, RedirectAttributes attr){//no funciona, tengo que traer el id y no consigo traerla a esta función
         try {
             //System.out.println("id:  " +id);
             //System.out.println("cusomer:  " +customer.getId());
+
+            //customer = customerService.findById(id);
+            //customer = customerService.findyEmail(customer.getEmail());
+            //System.out.println("customer post2 : "+customer.toString());
+            //customer = (Customer) http.getAttribute("customersession");
             //customer = customerService.findById(id);
             
-            //customer = (Customer) http.getAttribute("customersession");
-            customer = customerService.findById(id);
+            //customer = customerService.findById(id);
             System.out.println(customer.toString());
             customerService.save(customer);
-            System.out.println("customer post: "+customer.toString());
+            System.out.println("customer post : "+customer.toString());
             System.out.println("3");
             return "redirect:/customer/profile";
         } catch (Exception e) {

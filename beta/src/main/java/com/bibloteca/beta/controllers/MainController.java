@@ -1,4 +1,3 @@
-
 package com.bibloteca.beta.controllers;
 
 import com.bibloteca.beta.entities.Customer;
@@ -22,20 +21,21 @@ public class MainController {
 
     @GetMapping("/login")
     public String loginForm(@RequestParam(required = false) String error, ModelMap model) {
-        if(error != null){
+
+        if (error != null) {
             model.put("error", "El Email o contraseña fueron ingresados incorrectamente");
         }
         return "login";
     }
-    
+
     @GetMapping("/signUp")
-    public String registrationForm(ModelMap model){//solo para customer?? y para autor??(como pasa en el securityConfig)
+    public String registrationForm(ModelMap model) {//solo para customer?? y para autor??(como pasa en el securityConfig)
         model.addAttribute("customer", new Customer());
         return "customer/form";
     }
-    
+
     @GetMapping("/registerRole")
-    public String registrationRole(ModelMap model){
+    public String registrationRole(ModelMap model) {
         return "registerRole";
     }
 }

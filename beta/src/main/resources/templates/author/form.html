@@ -16,22 +16,21 @@
         <h2>Formulario de registro de Autor</h2>
         <div style="width: 50%; margin-left: 25%;">
             <form th:action="@{/author/form}" method="POST" th:object="${author}">
-                <imput type="hidden" th:value="${author.id}" />
-
+                <imput type="hidden" th:field="$*{id}" /><!--!!!-->
                 <label class="form-label"> Nombre:
-                    <input type="text" th:field="*{name}" />
+                    <input type="text" th:field="*{name}" placeholder="Nombre"/>
                 </label>
                 <label class="form-label"> Apellido:
-                    <input type="text" th:field="*{lastName}" />
+                    <input type="text" th:field="*{lastName}" placeholder="Apellido"/>
                 </label>
                 <label class="form-label"> Gmail:
-                    <input type="text" th:field="*{email}" />
+                    <input type="text" th:field="*{email}" placeholder="Email"/>
                 </label>
                 <label class="form-label"> Contraseña:
-                    <input type="text" th:field="*{password}" />
+                    <input type="text" th:field="*{password}" placeholder="Contraseña"/>
                 </label>
                 <label class="form-label"> DNI:
-                    <input type="text" th:field="*{dni}" />
+                    <input type="text" th:field="*{dni}" placeholder="DNI"/>
                 </label>
                 <!--<button type="submit" class="btn btn-primary">Submit</button>-->
 

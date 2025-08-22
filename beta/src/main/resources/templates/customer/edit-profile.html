@@ -14,33 +14,40 @@
         <nav th:replace="fragments/fragments::navbar"></nav>
         <h1>Editar Perfil</h1>
         <form th:action="@{/customer/edit-profile}" method="POST" th:object="${customer}" class="form container m-5 justify-content-between float-left">
-            <div class="mb-3">
-                <label for="InputEmail" class="form-label">Direccion de mail:</label>
-                <input type="email" th:value="${customer.email}" class="form-control" id="exampleInputEmail1" >
-            </div>
-            <div class="mb-3">
-                <label for="InputPassword" class="form-label">Contraseña:</label>
-                <input type="password" class="form-control" th:value="${customer.password}" id="Password">
-
-            </div>
+            <input type="hidden" th:field="*{id}">
             <div class="mb-3">
                 <label for="InputName" class="form-label">Nombre:</label>
-                <input type="text" class="form-control" th:value="${customer.name}" id="Name">
+                <input type="text" class="form-control" th:field="${customer.name}" id="Name">
             </div>
             <div class="mb-3">
                 <label for="InputLastName" class="form-label">Apellido:</label>
-                <input type="text" class="form-control" th:value="${customer.lastName}" id="Lastname">
+                <input type="text" class="form-control" th:field="${customer.lastName}" id="Lastname">
             </div>
             <div class="mb-3">
                 <label for="InputDNI" class="form-label">DNI:</label>
-                <input type="text" class="form-control" th:value="${customer.Dni}" id="DNI">
+                <input type="text" class="form-control" th:field="${customer.Dni}" id="DNI">
+            </div>
+            <div class="mb-3">
+                <label for="InputEmail" class="form-label">Direccion de mail:</label>
+                <input type="email" th:field="${customer.email}" class="form-control" id="exampleInputEmail1" >
+            </div>
+            <div class="mb-3">
+                <label for="InputPassword" class="form-label">Contraseña:</label>
+                <input type="password" class="form-control" th:field="${customer.password}" id="Password">
             </div>
             <input type="submit" value="guardar" class="btn btn-outline-success my-sm-0">
+            <div class="text-muted py-1 mb-3">
+                <p class="float-end mb-1">
+                    <a href="#">volver arriba</a>
+                </p>
+                <p class="mb-1">#Para cambiar su ROL por favor comunicarse con un administrador</p>
+                
+            </div>
 
             <p th:if="${error != null}" th:text="${error}" style="color : red;"></p>
         </form>
         <div class="container float-right">
-            <img th:value="${customer.picture}" class="rounded-circle mx-auto d-block" width="250" height="250"></img>
+            <img th:src="@{${customer.photo}}" class="rounded-circle mx-auto d-block" width="250" height="250"></img>
         </div>
 
 

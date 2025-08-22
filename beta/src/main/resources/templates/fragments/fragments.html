@@ -12,39 +12,41 @@
     <body>
         <div th:fragment="navbar">
             <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
-                <a class="navbar-brand " th:href="@{/}">Index</a>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <form class="navbar-nav mr-auto container m-2">
-                            <a sec:authorize="!isAuthenticated()" class="nav-link active" th:href="@{registerRole}">Registrate</a>
-                            <a sec:authorize="!isAuthenticated()" class="nav-link active" th:href="@{login}">Inicia sesión</a>
-                            
-                            
-                            <a sec:authorize="hasAnyRole('ADMIN')" class="nav-link active" th:href="@{/customer}">Lista de customers</a>
-                            
-                            <a sec:authorize="isAuthenticated()"class="nav-link active" th:href="@{/author}">Autores</a>
-                            
-                            <a class="nav-link active" th:href="@{/book}">Lista de Libros</a>
-                            
-                            <a sec:authorize="hasAnyRole('AUTHOR')" class="d-flex btn btn-info" th:href="@{/author/addBook}"> Agregar Libro </a>
-                            
-                            <a sec:authorize="isAuthenticated()" class="btn btn-outline-success my-sm-0" th:href="@{/logout}">Cerrar Sesión</a>
-                            
-                            <a sec:authorize="isAuthenticated()" class="nav-link active" th:if="${session.customersession != null}" th:href="@{/customer/profile}">Perfil </a> 
-                            
-                    </form>
-                    <!--<a sec:authorize="hasAnyRole('USER')"class="nav-link active" href="/customer/profile">Perfil</a>-->
-                    <div sec:authorize="isAuthenticated()" class="dropdown text-end" th:if="${session.customersession != null}">
-                        <a class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="https://github.com/mdo.png" alt="mdo" width="50" height="50" class="rounded-circle">
-                        </a>
-                        <ul class="dropdown-menu text-small" aria-labelledby="dropdownUser1">
-                            <li><a class="dropdown-item" th:href="@{/customer/profile}">Perfil</a></li>
-                            <li><a class="dropdown-item" th:href="@{/customer/edit-profile}">Editar perfil</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" th:href="@{/logout}">Cerrar Sesión</a></li>
-                        </ul>
-                    </div>
+                <div class="container">
+                    <a class="navbar-brand " th:href="@{/}">Index</a>
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <form class="navbar-nav mr-auto container m-2">
+                            <a sec:authorize="!isAuthenticated()" class="nav-link active" th:href="@{/registerRole}">Registrate</a>
+                            <a sec:authorize="!isAuthenticated()" class="nav-link active" th:href="@{/login}">Inicia sesión</a>
 
+
+                            <a sec:authorize="hasAnyRole('ADMIN')" class="nav-link active" th:href="@{/customer}">Lista de customers</a>
+
+                            <a sec:authorize="isAuthenticated()"class="nav-link active" th:href="@{/author}">Autores</a>
+
+                            <a class="nav-link active" th:href="@{/book}">Lista de Libros</a>
+
+                            <a sec:authorize="hasAnyRole('AUTHOR')" class="d-flex btn btn-info" th:href="@{/author/addBook}"> Agregar Libro </a>
+
+                            <a sec:authorize="isAuthenticated()" class="btn btn-outline-success my-sm-0" th:href="@{/logout}">Cerrar Sesión</a>
+
+                            <a sec:authorize="isAuthenticated()" class="nav-link active" th:if="${session.customersession != null}" th:href="@{/customer/profile}">Perfil </a> 
+
+                        </form>
+                        <!--<a sec:authorize="hasAnyRole('USER')"class="nav-link active" href="/customer/profile">Perfil</a>-->
+                        <div sec:authorize="isAuthenticated()" class="dropdown text-end" th:if="${session.customersession != null}">
+                            <a class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="https://github.com/mdo.png" alt="mdo" width="50" height="50" class="rounded-circle">
+                            </a>
+                            <ul class="dropdown-menu text-small" aria-labelledby="dropdownUser1">
+                                <li><a class="dropdown-item" th:href="@{/customer/profile}">Perfil</a></li>
+                                <li><a class="dropdown-item" th:href="@{/customer/edit-profile}">Editar perfil</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" th:href="@{/logout}">Cerrar Sesión</a></li>
+                            </ul>
+                        </div>
+
+                    </div>
                 </div>
 
             </nav>

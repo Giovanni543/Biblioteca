@@ -3,6 +3,7 @@ package com.bibloteca.beta.config;
 import com.bibloteca.beta.services.AuthorService;
 import com.bibloteca.beta.services.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -27,7 +28,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
         auth.userDetailsService(authorService).passwordEncoder(new BCryptPasswordEncoder());
     }
     
-    
     @Override
     protected void configure(HttpSecurity http) throws Exception{//configura la seguridad del protocolo
         
@@ -45,4 +45,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
                 .and().csrf().disable();
                 
     }
+    
+    /*@Bean
+    public PasswordEncoder passwordEncoder(){
+        return new BCryptPasswordEncoder();
+    }*/
 }

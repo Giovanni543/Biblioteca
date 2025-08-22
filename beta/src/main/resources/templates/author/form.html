@@ -16,7 +16,7 @@
         <h2>Formulario de registro de Autor</h2>
         <div style="width: 50%; margin-left: 25%;">
             <form th:action="@{/author/form}" method="POST" th:object="${author}">
-                <imput type="hidden" th:field="$*{id}" /><!--!!!-->
+                <imput type="hidden" th:field="*{id}" /><!--!!!-->
                 <label class="form-label"> Nombre:
                     <input type="text" th:field="*{name}" placeholder="Nombre"/>
                 </label>

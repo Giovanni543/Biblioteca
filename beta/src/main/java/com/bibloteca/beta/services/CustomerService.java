@@ -15,12 +15,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Service
-public class CustomerService implements UserDetailsService{
+public class CustomerService implements UserDetailsService {
 
     private CustomerRepository customerRepository;
 
@@ -29,25 +30,47 @@ public class CustomerService implements UserDetailsService{
         this.customerRepository = customerRepository;
     }
 
+    /*@Autowired
+    private PasswordEncoder passwordEncoder;*/
+
     @Transactional(value = Transactional.TxType.REQUIRED, rollbackOn = Exception.class)
     public void saveNew(Customer customer) throws Exception {
-        
+
         validate(customer);
         activateIfNew(customer);
         System.out.println("paso la validacion y el activado");
-        
+
         String passwordEncripted = new BCryptPasswordEncoder().encode(customer.getPassword());
         customer.setPassword(passwordEncripted);
         System.out.println("hasta aca todo bien");
         customerRepository.save(customer);
     }
-    
+
     @Transactional(value = Transactional.TxType.REQUIRED, rollbackOn = Exception.class)
-    public void save(Customer customer)throws Exception{
-        customerRepository.save(customer);
+    public void save(Customer customer) throws Exception {
+        System.out.println("entro al servicio");
+        Customer principal = customerRepository.findById(customer.getId())//customer es el objeto solo con los atributos modificados, principal es el objeto que se llama de la bbdd
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        
+        
+        System.out.println(customer.toString());
+        System.out.println(principal.toString());
+        
+        principal.setName(customer.getName()); // total de campos que se permiten modificar: 6
+        principal.setLastName(customer.getLastName());
+        principal.setEmail(customer.getEmail());
+        principal.setDni(customer.getDni());
+        principal.setPhoto(customer.getPhoto());//esta bien asi?
+
+        if (customer.getPassword() != null && !customer.getPassword().isEmpty()) {
+            principal.setPassword(new BCryptPasswordEncoder().encode(customer.getPassword()));//encripta nuevamente la contraseña si es que se editó
+        }
+        validate(customer);
+        customerRepository.save(principal);
+        
     }
-    
-    private void activateIfNew(Customer customer) throws Exception{
+
+    private void activateIfNew(Customer customer) throws Exception {
         if (customer.getActive() == null || customer.getActive().equals(false)) {
             customer.setActive(Boolean.TRUE);
             customer.setRole(Role.USER);
@@ -55,7 +78,7 @@ public class CustomerService implements UserDetailsService{
     }
 
     @Transactional
-    public Customer findById(String id) throws Exception{
+    public Customer findById(String id) throws Exception {
         Customer customer = customerRepository.getById(id);//findById
         if (customer == null) {
             throw new Exception("No se encontro al usuario con ese Id");
@@ -93,28 +116,30 @@ public class CustomerService implements UserDetailsService{
         if (customer.getDni() < 10000000 || customer.getDni() > 90000000 || customer.getDni() == null || customer.getDni().toString().isEmpty() || customer.getDni().toString().equals(" ")) {
             throw new Exception("El DNI ingreado es invalido");
         }
+
     }
-    
+
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException{
-        
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+
         Customer customer = customerRepository.findByEmail(email);
-        if(customer == null){
-            throw new UsernameNotFoundException("usuario no encontrado");
+        if (customer == null) {
+            System.out.println("yyy");
+            throw new UsernameNotFoundException("usuario no encontrado " + email);
         }
-        
+        System.out.println(customer.toString());
+
         List<GrantedAuthority> permissions = new ArrayList<>();
         GrantedAuthority rolePermissions = new SimpleGrantedAuthority("ROLE_" + customer.getRole().toString());
         permissions.add(rolePermissions);
-        
+
         ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
-        
+
         HttpSession session = attr.getRequest().getSession(true);
-        
+
         session.setAttribute("customersession", customer);
-        
+
         return new User(customer.getEmail(), customer.getPassword(), permissions);
     }
-            
 
 }

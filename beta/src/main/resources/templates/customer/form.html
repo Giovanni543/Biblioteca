@@ -15,7 +15,7 @@
         <nav th:replace="fragments/fragments::navbar"></nav>
         <h1>Crear Customer</h1>
         <div>
-            <form th:action="@{/customer/form}" method="POST" th:object="${customer}">
+            <form th:action="@{/customer/form}" method="POST" th:object="${customer}" enctype="multipart/form-data">
                 <input type="hidden" th:field="*{id}"> <!--!!!-->
                 <label class="form-label"> Nombre:
                     <input type="text" th:field="*{name}" placeholder="Nombre"/>
@@ -32,9 +32,12 @@
                 <label class="form-label"> DNI:
                     <input type="text" th:field="*{dni}" placeholder="DNI"/>
                 </label>
-
+                <label class="form-label"> Foto De Perfil:
+                    <input type="file" name="archivo" accept="image/*"/>
                 <input type='submit' value='guardar'/>
+                <!--<input type="file" name="picture" accept="image/*" >-->
             </form>
+            
             <!--<p th:if="${error != null}" th:text="${error}" style="color : red;"></p>-->
             <p class="text-danger"  th:text="${error != null ? error : ''}"></p>
         </div>

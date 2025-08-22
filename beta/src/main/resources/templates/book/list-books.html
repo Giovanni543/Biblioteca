@@ -41,7 +41,10 @@
                         <!--<td th:text="${book.authorFullName}"></td>-->
                         <td th:text="${book.stock}"></td>
                         <!--<td th:text="${book.pages}"></td>-->
-                        <td><a href="/"><i class="fa-solid fa-eye"></i></a></td>
+                        <td class="text-center">
+                            <a th:href="@{book/view(id =__${book.id}__)}"><i class="fa-solid fa-eye"></i></a>
+                        </td>
+                        <!--<td><a th:href="@{/book/view}"><i class="far fa-edit text-warning"></i></a></td>-->
                     </tr>
                 </tbody>
             </table>

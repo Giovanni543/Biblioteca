@@ -31,7 +31,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/customer")
 public class CustomerController {
-
+    //kkk
     private CustomerService customerService;
     private PhotoService photoService;//tendria que autowirearlo?
 
@@ -90,9 +90,14 @@ public class CustomerController {
     @GetMapping("/profile")
     public String showProfile(ModelMap model, HttpSession http) {
         try {
+            //Customer customer = customerService.findById(id);
             Customer customer = (Customer) http.getAttribute("customersession");
+            System.out.println("cc"+ customer.toString());
+
+            //Customer customer = (Customer) http.getAttribute("customersession");
             //Customer customer = customerService.findById(id);
             //Customer customer = (Customer) session.getAttribute("customersession");
+            //f7531118e87ce45d57836c4f997e3754b49979d6
             model.addAttribute("customer", customer);
             return "/customer/profile";
         } catch (Exception e) {

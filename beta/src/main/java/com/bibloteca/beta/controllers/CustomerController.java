@@ -1,18 +1,31 @@
 package com.bibloteca.beta.controllers;
 
 import com.bibloteca.beta.entities.Customer;
+import com.bibloteca.beta.entities.Photo;
+import com.bibloteca.beta.repositories.PhotoRepository;
 import com.bibloteca.beta.services.CustomerService;
+import com.bibloteca.beta.services.PhotoService;
 import java.util.List;
+import java.util.Optional;
 import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -20,14 +33,18 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class CustomerController {
     //kkk
     private CustomerService customerService;
+    private PhotoService photoService;//tendria que autowirearlo?
 
     @Autowired
-    public CustomerController(CustomerService customerService) {
+    public CustomerController(CustomerService customerService, PhotoService photoService) {
         this.customerService = customerService;
+        this.photoService = photoService;
     }
 
-    //En la pag de customer va a aparecer una lista de todos los customers
-    //una opcion para editar la cuenta con la que se ingreso
+    /*@InitBinder //Evita que spring bindee automaticamente este atributo
+    public void initBinder(WebDataBinder binder) {
+        binder.setDisallowedFields("picture");
+    }*/
     @GetMapping
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     public String ListCustomers(ModelMap model) {
@@ -37,16 +54,15 @@ public class CustomerController {
     }
 
     @GetMapping("/form")
-    public String showForm(ModelMap model, @RequestParam(required = false) String id){
+    public String showForm(ModelMap model, @RequestParam(required = false) String id) {
         try {
             if (id == null) {
                 model.addAttribute("customer", new Customer());
-                return "customer/form";
             } else {
                 Customer customer = customerService.findById(id);
                 model.addAttribute("customer", customer);
-                return "customer/form";
             }
+            return "customer/form";
         } catch (Exception e) {
             model.put("error", e.getMessage());
             return "customer/form";
@@ -54,13 +70,17 @@ public class CustomerController {
     }
 
     @PostMapping("/form")
-    public String saveCustomer(@ModelAttribute Customer customer, ModelMap model, RedirectAttributes attr){
+    public String saveCustomer(@ModelAttribute Customer customer, @RequestParam("archivo") MultipartFile archivo, RedirectAttributes attr) {
         try {
+            Photo photo = photoService.save(archivo);
+            
+            customer.setPhoto(photo);
+            System.out.println("Se seteo la imagen a customer");
             customerService.saveNew(customer);
-            System.out.println("Customer ah sido guardado :)");
-            return "redirect:/customer";
+            
+            return "index";
+            
         } catch (Exception e) {
-            //attr.addFlashAttribute("customer", customer); vuelve a recargar la pag con los atributos del customer pero no anda¿?
             attr.addFlashAttribute("error", e.getMessage());
             System.out.println("Exception en controlador: " + e.getMessage());
             return "redirect:/customer/form";
@@ -68,7 +88,7 @@ public class CustomerController {
     }
 
     @GetMapping("/profile")
-    public String showProfile(ModelMap model, HttpSession http){
+    public String showProfile(ModelMap model, HttpSession http) {
         try {
             //Customer customer = customerService.findById(id);
             Customer customer = (Customer) http.getAttribute("customersession");
@@ -87,11 +107,11 @@ public class CustomerController {
     }
 
     @GetMapping("/edit-profile")
-    public String editGet(ModelMap model, HttpSession http){
+    public String editGet(ModelMap model, HttpSession http) {
         try {
             Customer customer = (Customer) http.getAttribute("customersession");
             model.addAttribute("customer", customer);
-            System.out.println("customer get: "+ customer.toString());
+            System.out.println("customer get: " + customer.toString());
             System.out.println("1");
             return "/customer/edit-profile";
         } catch (Exception e) {
@@ -100,31 +120,48 @@ public class CustomerController {
             return "/customer/profile";
         }
     }
-    
 
     @PostMapping("edit-profile")
-    public String editPost(Customer customer, ModelMap model, RedirectAttributes attr){//no funciona, tengo que traer el id y no consigo traerla a esta función
+    public String editPost(@ModelAttribute Customer customer, RedirectAttributes attr, HttpSession http) {
         try {
-            //System.out.println("id:  " +id);
-            //System.out.println("cusomer:  " +customer.getId());
-
-            //customer = customerService.findById(id);
-            //customer = customerService.findyEmail(customer.getEmail());
-            //System.out.println("customer post2 : "+customer.toString());
-            //customer = (Customer) http.getAttribute("customersession");
-            //customer = customerService.findById(id);
             
-            //customer = customerService.findById(id);
-            System.out.println(customer.toString());
             customerService.save(customer);
-            System.out.println("customer post : "+customer.toString());
+            http.setAttribute("customersession", customer);//actualiza la sessión asi me aparece el customer actualizado
+            attr.addFlashAttribute("success", "Edit del Perfil EXITOSO ");
             System.out.println("3");
-            return "redirect:/customer/profile";
+            return "redirect:/logout";
         } catch (Exception e) {
             attr.addFlashAttribute("error", e.getMessage());
             System.out.println("4");
             return "/index";
         }
+    }
+
+    @GetMapping("/photo/{id}")
+    @ResponseBody
+    public ResponseEntity<byte[]> mostrarImagen(@PathVariable String id) throws Exception {
+
+        Optional<Photo> photoOptional = photoService.findById(id);//preguntar por este procedimiento porque lo tengo que hacer optional y no photo
+
+        if (photoOptional != null) {
+            Photo photo = photoOptional.get();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.valueOf(photo.getMime()));
+            return new ResponseEntity<>(photo.getContent(), headers, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        /*Customer customer = customerService.findById(id);
+        if (customer != null && customer.getPicture() != null) {
+            byte[] imagen = customer.getPicture();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.IMAGE_JPEG);
+            return new ResponseEntity<>(imagen, headers, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }*/
+        //return (customer != null && customer.getPicture() != null) ? customer.getPicture() : new byte[0];
     }
 
 }

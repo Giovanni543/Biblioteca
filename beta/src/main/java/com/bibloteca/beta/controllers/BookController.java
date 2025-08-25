@@ -34,14 +34,14 @@ public class BookController {
 
     @GetMapping("/form")
     @PreAuthorize("hasAnyRole('ROLE_AUTHOR')")
-    public String showForm(ModelMap model, @RequestParam(required = false) String id){
+    public String showForm(ModelMap model, @RequestParam(required = false) String id) {
         try {
             if (id == null) {
                 model.addAttribute("book", new Book());
                 System.out.println("get de form");
                 return "/book/addBook";
             } else {
-                Book book = bookService.findById(id); 
+                Book book = bookService.findById(id);
                 model.addAttribute("book", book);
                 return "/book/addBook";
             }
@@ -50,19 +50,35 @@ public class BookController {
             return "/book/addBook";
         }
     }
-    
+
     @PostMapping("/form")
     @PreAuthorize("hasAnyRole('ROLE_AUTHOR')")
-    public String saveBook(@ModelAttribute Book book,RedirectAttributes attr){
-        try{
+    public String saveBook(@ModelAttribute Book book, RedirectAttributes attr) {
+        try {
             System.out.println("post de form");
             bookService.save(book);//capaz tenga que llamar aca al servicio de autor
             System.out.println("libro se ah guardado :)");
             return "redirect:/book";
-        }catch(Exception e){
+        } catch (Exception e) {
             attr.addFlashAttribute("error", e.getMessage());
-            System.out.println("Excepcion en controlador libro: "+ e.getMessage());//falta que tire los msj de error en algunos atriutos y que en caso de error, vuelva a recargar la pag con los atributos anteriores 
+            System.out.println("Excepcion en controlador libro: " + e.getMessage());//falta que tire los msj de error en algunos atriutos y que en caso de error, vuelva a recargar la pag con los atributos anteriores 
             return "redirect:/book/addBook";
+        }
+    }
+
+    @GetMapping("/view")
+    //@PreAuthorize("hasAnyRole('ROLE_AUTHOR')")
+    public String viewBook(Book book, RedirectAttributes attr) {//modelmap
+        try {
+            
+            bookService.findById(book.getId());
+            System.out.println(book.getName() + "  " + book.getId() + "  " + book.getCategory());
+            return "/book/view";
+        } catch (Exception e) {
+            attr.addFlashAttribute("error", e.getMessage());
+            System.out.println(book.getId());
+            System.out.println("Excepcion en controlador libro: " + e.getMessage());//falta que tire los msj de error en algunos atriutos y que en caso de error, vuelva a recargar la pag con los atributos anteriores 
+            return "redirect:/book";
         }
     }
 }

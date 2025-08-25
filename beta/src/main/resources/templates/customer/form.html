@@ -14,25 +14,30 @@
     <body>
         <nav th:replace="fragments/fragments::navbar"></nav>
         <h1>Crear Customer</h1>
-            <form th:action="@{/customer/form}" method="POST" th:object="${customer}">
+        <div>
+            <form th:action="@{/customer/form}" method="POST" th:object="${customer}" enctype="multipart/form-data">
+                <input type="hidden" th:field="*{id}"> <!--!!!-->
                 <label class="form-label"> Nombre:
-                    <input type="text" th:field="*{name}" />
+                    <input type="text" th:field="*{name}" placeholder="Nombre"/>
                 </label>
                 <label class="form-label"> Apellido:
-                    <input type="text" th:field="*{lastName}" />
+                    <input type="text" th:field="*{lastName}" placeholder="Apellido" />
                 </label>
                 <label class="form-label"> Gmail:
-                    <input type="email" th:field="*{email}" />
+                    <input type="text" th:field="*{email}" placeholder="Email" autocomplete="off"/>
                 </label>
                 <label class="form-label"> Contraseña:
-                    <input type="password" th:field="*{password}" />
+                    <input type="text" th:field="*{password}" placeholder="Contraseña"/>
                 </label>
                 <label class="form-label"> DNI:
-                    <input type="text" th:field="*{dni}" />
+                    <input type="text" th:field="*{dni}" placeholder="DNI"/>
                 </label>
-
+                <label class="form-label"> Foto De Perfil:
+                    <input type="file" name="archivo" accept="image/*"/>
                 <input type='submit' value='guardar'/>
+                <!--<input type="file" name="picture" accept="image/*" >-->
             </form>
+            
             <!--<p th:if="${error != null}" th:text="${error}" style="color : red;"></p>-->
             <p class="text-danger"  th:text="${error != null ? error : ''}"></p>
 

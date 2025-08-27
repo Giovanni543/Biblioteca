@@ -1,6 +1,7 @@
 package com.bibloteca.beta.services;
 
 import com.bibloteca.beta.entities.Customer;
+import com.bibloteca.beta.entities.Photo;
 import com.bibloteca.beta.enums.Role;
 import java.util.List;
 import java.util.ArrayList;
@@ -19,19 +20,22 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class CustomerService implements UserDetailsService {
 
     private CustomerRepository customerRepository;
+    private PhotoService photoService;
+    
+    
 
     @Autowired//la inyeccion de dependencia en los constructores nos permite hacer tessting despues de manera mas sencilla
-    public CustomerService(CustomerRepository customerRepository) {
+    public CustomerService(CustomerRepository customerRepository, PhotoService photoService) {
         this.customerRepository = customerRepository;
+        this.photoService = photoService;
     }
 
-    /*@Autowired
-    private PasswordEncoder passwordEncoder;*/
 
     @Transactional(value = Transactional.TxType.REQUIRED, rollbackOn = Exception.class)
     public void saveNew(Customer customer) throws Exception {
@@ -39,7 +43,10 @@ public class CustomerService implements UserDetailsService {
         validate(customer);
         activateIfNew(customer);
         System.out.println("paso la validacion y el activado");
-
+        
+        //String passwordEncripted = passwordEncoder.encode(customer.getPassword());
+        //customer.setPassword(passwordEncripted);
+        
         String passwordEncripted = new BCryptPasswordEncoder().encode(customer.getPassword());
         customer.setPassword(passwordEncripted);
         System.out.println("hasta aca todo bien");
@@ -47,27 +54,35 @@ public class CustomerService implements UserDetailsService {
     }
 
     @Transactional(value = Transactional.TxType.REQUIRED, rollbackOn = Exception.class)
-    public void save(Customer customer) throws Exception {
+    public void save(Customer customer, MultipartFile file) throws Exception {
         System.out.println("entro al servicio");
-        Customer principal = customerRepository.findById(customer.getId())//customer es el objeto solo con los atributos modificados, principal es el objeto que se llama de la bbdd
+        Customer principal = customerRepository.findById(customer.getId())//customer es el objeto solo con los atributos modificados, principal es el objeto traído de la bbdd
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-        
-        
+
         System.out.println(customer.toString());
         System.out.println(principal.toString());
-        
+        System.out.println(customer.getPassword());
+
         principal.setName(customer.getName()); // total de campos que se permiten modificar: 6
         principal.setLastName(customer.getLastName());
         principal.setEmail(customer.getEmail());
         principal.setDni(customer.getDni());
-        principal.setPhoto(customer.getPhoto());//esta bien asi?
+
+        // Actualizar foto (el photoService decide si crea o actualiza)
+        if (file != null && !file.isEmpty()) {
+            System.out.println("actualizo foto");
+            Photo newPhoto = photoService.update(principal.getPhoto(), file);
+
+            principal.setPhoto(newPhoto);
+        }
 
         if (customer.getPassword() != null && !customer.getPassword().isEmpty()) {
+            System.out.println("cambio de contraseña");
             principal.setPassword(new BCryptPasswordEncoder().encode(customer.getPassword()));//encripta nuevamente la contraseña si es que se editó
         }
-        validate(customer);
+        validate(principal);
         customerRepository.save(principal);
-        
+        System.out.println("kkk");
     }
 
     private void activateIfNew(Customer customer) throws Exception {
@@ -94,12 +109,12 @@ public class CustomerService implements UserDetailsService {
         }
         return customers;
     }
-    
+
     @Transactional
-    public Customer findyEmail(String email)throws Exception{
+    public Customer findyEmail(String email) throws Exception {
         Customer customer = customerRepository.findByEmail(email);
-        if(customer == null){
-            throw new Exception ("No se encontro a ningun usuario con dicho email");
+        if (customer == null) {
+            throw new Exception("No se encontro a ningun usuario con dicho email");
         }
         return customer;
     }
@@ -133,10 +148,8 @@ public class CustomerService implements UserDetailsService {
 
         Customer customer = customerRepository.findByEmail(email);
         if (customer == null) {
-            System.out.println("yyy");
             throw new UsernameNotFoundException("usuario no encontrado " + email);
         }
-        System.out.println(customer.toString());
 
         List<GrantedAuthority> permissions = new ArrayList<>();
         GrantedAuthority rolePermissions = new SimpleGrantedAuthority("ROLE_" + customer.getRole().toString());

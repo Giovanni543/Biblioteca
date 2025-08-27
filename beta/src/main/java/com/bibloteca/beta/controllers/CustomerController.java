@@ -31,6 +31,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/customer")
 public class CustomerController {
+
     //kkk
     private CustomerService customerService;
     private PhotoService photoService;//tendria que autowirearlo?
@@ -73,13 +74,13 @@ public class CustomerController {
     public String saveCustomer(@ModelAttribute Customer customer, @RequestParam("archivo") MultipartFile archivo, RedirectAttributes attr) {
         try {
             Photo photo = photoService.save(archivo);
-            
+
             customer.setPhoto(photo);
             System.out.println("Se seteo la imagen a customer");
             customerService.saveNew(customer);
-            
+
             return "index";
-            
+
         } catch (Exception e) {
             attr.addFlashAttribute("error", e.getMessage());
             System.out.println("Exception en controlador: " + e.getMessage());
@@ -90,14 +91,8 @@ public class CustomerController {
     @GetMapping("/profile")
     public String showProfile(ModelMap model, HttpSession http) {
         try {
-            //Customer customer = customerService.findById(id);
             Customer customer = (Customer) http.getAttribute("customersession");
-            System.out.println("cc"+ customer.toString());
-
-            //Customer customer = (Customer) http.getAttribute("customersession");
-            //Customer customer = customerService.findById(id);
-            //Customer customer = (Customer) session.getAttribute("customersession");
-            //f7531118e87ce45d57836c4f997e3754b49979d6
+            System.out.println("cc" + customer.toString());
             model.addAttribute("customer", customer);
             return "/customer/profile";
         } catch (Exception e) {
@@ -122,17 +117,17 @@ public class CustomerController {
     }
 
     @PostMapping("edit-profile")
-    public String editPost(@ModelAttribute Customer customer, RedirectAttributes attr, HttpSession http) {
+    public String editPost(@ModelAttribute Customer customer, @RequestParam("photoFile") MultipartFile file, RedirectAttributes attr, HttpSession http){
         try {
-            
-            customerService.save(customer);
+
+            customerService.save(customer, file);
             http.setAttribute("customersession", customer);//actualiza la sessión asi me aparece el customer actualizado
             attr.addFlashAttribute("success", "Edit del Perfil EXITOSO ");
             System.out.println("3");
             return "redirect:/logout";
         } catch (Exception e) {
             attr.addFlashAttribute("error", e.getMessage());
-            System.out.println("4");
+            System.out.println("4, error: " + e.getMessage());
             return "/index";
         }
     }
@@ -151,17 +146,13 @@ public class CustomerController {
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-
-        /*Customer customer = customerService.findById(id);
-        if (customer != null && customer.getPicture() != null) {
-            byte[] imagen = customer.getPicture();
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.IMAGE_JPEG);
-            return new ResponseEntity<>(imagen, headers, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }*/
-        //return (customer != null && customer.getPicture() != null) ? customer.getPicture() : new byte[0];
     }
+
+    /*@PostMapping("/edit-photo")
+    public String editPhoto(@RequestParam("photoFile") MultipartFile file, HttpSession http) throws Exception {
+        Customer customer = (Customer) http.getAttribute("customersession");
+        photoService.save(file); // delegás la lógica al servicio
+        return "redirect:/customer/profile";
+    }*/
 
 }

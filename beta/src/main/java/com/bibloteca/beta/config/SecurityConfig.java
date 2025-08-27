@@ -10,18 +10,24 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter{
     
-    @Autowired
-    public CustomerService customerService;
-    //@Autowired
-    //public AuthorService authorService;
     
+    public CustomerService customerService;
+    //private final PasswordEncoder passwordEncoder;
+    
+    @Autowired
+    public SecurityConfig(CustomerService customerService){
+        this.customerService = customerService;
+    }
+        
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth)throws Exception{
         auth.userDetailsService(customerService).passwordEncoder(new BCryptPasswordEncoder());
@@ -46,7 +52,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
     }
     
     /*@Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }*/
 }

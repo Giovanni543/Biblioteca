@@ -14,16 +14,20 @@
         <nav th:replace="fragments/fragments::navbar"></nav>
         <form class="container mt-5" th:action="@{/logincheck}" method="POST">
             <h1 class="h3 mb-3 fw-normal">Logearse por favor</h1>
-
-            <div class="form-floating">
-                <input type="email" class="form-control" name="email" id="floatingInput" placeholder="Email@example.com">
-                <label for="floatingInput">Dirección de Email</label>
+            <div class="mb-3">
+                <div class="form-floating">
+                    <input type="email" class="form-control" name="email" id="floatingInput" placeholder="Email@example.com">
+                    <label for="floatingInput">Dirección de Email</label>
+                </div>
             </div>
-            <div class="form-floating">
-                <input type="password" class="form-control" name="password" id="floatingPassword" placeholder="Password">
-                <label for="floatingPassword">Contraseña</label>
+            <div class="mb-3">
+                <div class="form-floating position-relative">
+                    <input type="password" class="form-control" name="password" id="floatingPassword" placeholder="Password">
+                    <label for="floatingPassword">Contraseña</label>
+                    <button type="button" class="btn btn-outline-secondary position-absolute top-50 end-0 translate-middle-y me-2" 
+                            onclick="toggleLoginPassword()">👁️</button>
+                </div>
             </div>
-
             <div class="checkbox mb-3">
                 <label>
                     <input type="checkbox" value="remember-me"> Hacerme acordar
@@ -34,5 +38,15 @@
             <p class="text-danger"  th:text="${error != null ? error : ''}"></p>
             <p class="mt-5 mb-3 text-muted">&copy; 2021–2024</p>
         </form>
+        <script>
+            function toggleLoginPassword() {
+                const passwordField = document.getElementById("floatingPassword");
+                if (passwordField.type === "password") {
+                    passwordField.type = "text";
+                } else {
+                    passwordField.type = "password";
+                }
+            }
+        </script>
     </body>
 </html>

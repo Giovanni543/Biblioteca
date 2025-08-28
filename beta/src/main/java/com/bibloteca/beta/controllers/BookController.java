@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -53,7 +54,7 @@ public class BookController {
 
     @PostMapping("/form")
     @PreAuthorize("hasAnyRole('ROLE_AUTHOR')")
-    public String saveBook(@ModelAttribute Book book, RedirectAttributes attr) {
+    public String saveBook(@ModelAttribute Book book,@RequestParam("archivo") MultipartFile archivo, RedirectAttributes attr) {
         try {
             System.out.println("post de form");
             bookService.save(book);//capaz tenga que llamar aca al servicio de autor

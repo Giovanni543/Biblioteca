@@ -27,8 +27,6 @@ public class CustomerService implements UserDetailsService {
 
     private CustomerRepository customerRepository;
     private PhotoService photoService;
-    
-    
 
     @Autowired//la inyeccion de dependencia en los constructores nos permite hacer tessting despues de manera mas sencilla
     public CustomerService(CustomerRepository customerRepository, PhotoService photoService) {
@@ -36,17 +34,15 @@ public class CustomerService implements UserDetailsService {
         this.photoService = photoService;
     }
 
-
     @Transactional(value = Transactional.TxType.REQUIRED, rollbackOn = Exception.class)
     public void saveNew(Customer customer) throws Exception {
 
         validate(customer);
         activateIfNew(customer);
         System.out.println("paso la validacion y el activado");
-        
+
         //String passwordEncripted = passwordEncoder.encode(customer.getPassword());
         //customer.setPassword(passwordEncripted);
-        
         String passwordEncripted = new BCryptPasswordEncoder().encode(customer.getPassword());
         customer.setPassword(passwordEncripted);
         System.out.println("hasta aca todo bien");
@@ -54,7 +50,7 @@ public class CustomerService implements UserDetailsService {
     }
 
     @Transactional(value = Transactional.TxType.REQUIRED, rollbackOn = Exception.class)
-    public void save(Customer customer, MultipartFile file) throws Exception {
+    public void save(Customer customer, MultipartFile file, String newPassword) throws Exception {
         System.out.println("entro al servicio");
         Customer principal = customerRepository.findById(customer.getId())//customer es el objeto solo con los atributos modificados, principal es el objeto traído de la bbdd
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
@@ -62,7 +58,8 @@ public class CustomerService implements UserDetailsService {
         System.out.println(customer.toString());
         System.out.println(principal.toString());
         System.out.println(customer.getPassword());
-
+        System.out.println(newPassword);
+        
         principal.setName(customer.getName()); // total de campos que se permiten modificar: 6
         principal.setLastName(customer.getLastName());
         principal.setEmail(customer.getEmail());
@@ -72,13 +69,12 @@ public class CustomerService implements UserDetailsService {
         if (file != null && !file.isEmpty()) {
             System.out.println("actualizo foto");
             Photo newPhoto = photoService.update(principal.getPhoto(), file);
-
             principal.setPhoto(newPhoto);
         }
 
-        if (customer.getPassword() != null && !customer.getPassword().isEmpty()) {
+        if (newPassword != null && !newPassword.isEmpty()) {//encripta nuevamente la contraseña si es que se ingresó una nueva
             System.out.println("cambio de contraseña");
-            principal.setPassword(new BCryptPasswordEncoder().encode(customer.getPassword()));//encripta nuevamente la contraseña si es que se editó
+            principal.setPassword(new BCryptPasswordEncoder().encode(newPassword));
         }
         validate(principal);
         customerRepository.save(principal);

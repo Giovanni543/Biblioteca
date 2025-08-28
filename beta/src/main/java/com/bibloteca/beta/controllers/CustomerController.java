@@ -32,9 +32,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/customer")
 public class CustomerController {
 
-    //kkk
     private CustomerService customerService;
-    private PhotoService photoService;//tendria que autowirearlo?
+    private PhotoService photoService;
 
     @Autowired
     public CustomerController(CustomerService customerService, PhotoService photoService) {
@@ -42,10 +41,7 @@ public class CustomerController {
         this.photoService = photoService;
     }
 
-    /*@InitBinder //Evita que spring bindee automaticamente este atributo
-    public void initBinder(WebDataBinder binder) {
-        binder.setDisallowedFields("picture");
-    }*/
+    
     @GetMapping
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     public String ListCustomers(ModelMap model) {
@@ -105,6 +101,7 @@ public class CustomerController {
     public String editGet(ModelMap model, HttpSession http) {
         try {
             Customer customer = (Customer) http.getAttribute("customersession");
+            //customer.setPassword(null);//evito enviar y mostrar la contraseña a la vista (no se elimina ni sobreescribe)
             model.addAttribute("customer", customer);
             System.out.println("customer get: " + customer.toString());
             System.out.println("1");
@@ -117,10 +114,10 @@ public class CustomerController {
     }
 
     @PostMapping("edit-profile")
-    public String editPost(@ModelAttribute Customer customer, @RequestParam("photoFile") MultipartFile file, RedirectAttributes attr, HttpSession http){
+    public String editPost(@ModelAttribute Customer customer, @RequestParam("photoFile") MultipartFile file, @RequestParam(value = "newPassword", required =false)String newPassword, RedirectAttributes attr, HttpSession http){
         try {
 
-            customerService.save(customer, file);
+            customerService.save(customer, file, newPassword);//La foto y Contraseña los gestiono separado de los demas atributos
             http.setAttribute("customersession", customer);//actualiza la sessión asi me aparece el customer actualizado
             attr.addFlashAttribute("success", "Edit del Perfil EXITOSO ");
             System.out.println("3");
@@ -147,12 +144,5 @@ public class CustomerController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-
-    /*@PostMapping("/edit-photo")
-    public String editPhoto(@RequestParam("photoFile") MultipartFile file, HttpSession http) throws Exception {
-        Customer customer = (Customer) http.getAttribute("customersession");
-        photoService.save(file); // delegás la lógica al servicio
-        return "redirect:/customer/profile";
-    }*/
-
+    
 }

@@ -32,11 +32,11 @@
                     </div>
                     <div class="mb-3">
                         <label for="InputEmail" class="form-label">Direccion de mail:</label>
-                        <input type="email" th:field="*{email}" class="form-control" id="exampleInputEmail1" >
+                        <input type="email" class="form-control" th:field="*{email}" id="exampleInputEmail1" >
                     </div>
                     <div class="mb-3">
                         <label for="InputPassword" class="form-label">Contraseña:</label>
-                        <input type="password" class="form-control" th:field="*{password}" id="Password" placeholder="Escribe una nueva Contraseña">
+                        <input class="form-control" name="newPassword" placeholder="Escribe una nueva Contraseña (opcional)">
                     </div>
                     <div class="mb-3 text-center">
                         <img th:if="${customer.photo != null}" 

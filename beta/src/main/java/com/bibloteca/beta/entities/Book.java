@@ -6,11 +6,14 @@
 package com.bibloteca.beta.entities;
 
 import java.io.Serializable;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -31,7 +34,9 @@ public class Book implements Serializable{//no van a haber 20 ojetos del libro x
 
     private String category;
     private String name;
-    private String picture;
+    
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Photo photo;
     //private String backCover;
     //private String authorFullName;
     private Integer stock;

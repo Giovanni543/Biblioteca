@@ -54,7 +54,7 @@ public class BookController {
 
     @PostMapping("/form")
     @PreAuthorize("hasAnyRole('ROLE_AUTHOR')")
-    public String saveBook(@ModelAttribute Book book,@RequestParam("archivo") MultipartFile archivo, RedirectAttributes attr) {
+    public String saveBook(@ModelAttribute Book book,@RequestParam("archivo") MultipartFile file, RedirectAttributes attr) {
         try {
             System.out.println("post de form");
             bookService.save(book);//capaz tenga que llamar aca al servicio de autor

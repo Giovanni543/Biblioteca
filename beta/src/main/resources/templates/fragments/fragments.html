@@ -38,7 +38,7 @@
                         <!--<a sec:authorize="hasAnyRole('USER')"class="nav-link active" href="/customer/profile">Perfil</a>-->
                         <div sec:authorize="isAuthenticated()" class="dropdown text-end" th:if="${session.customersession != null}">
                             <a class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-                                <img src="https://github.com/mdo.png" alt="mdo" width="50" height="50" class="rounded-circle">
+                                <img th:src="@{/customer/photo/{id}(id=${customer.photo.id})}" alt="Foto de perfil" class="rounded-circle" width="50" height="50">
                             </a>
                             <ul class="dropdown-menu text-small" aria-labelledby="dropdownUser1">
                                 <li><a class="dropdown-item" th:href="@{/customer/profile}">Perfil</a></li>

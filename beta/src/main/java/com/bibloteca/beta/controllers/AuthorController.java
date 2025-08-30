@@ -2,7 +2,10 @@ package com.bibloteca.beta.controllers;
 
 import com.bibloteca.beta.entities.Author;
 import com.bibloteca.beta.entities.Book;
+import com.bibloteca.beta.entities.Photo;
 import com.bibloteca.beta.services.AuthorService;
+import com.bibloteca.beta.services.BookService;
+import com.bibloteca.beta.services.PhotoService;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpSession;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -22,10 +26,14 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class AuthorController {
 
     private AuthorService authorService;
+    private BookService bookService;
+    private PhotoService photoService;
 
     @Autowired
-    public AuthorController(AuthorService authorService) {
+    public AuthorController(AuthorService authorService, BookService bookService, PhotoService photoService) {
         this.authorService = authorService;
+        this.bookService = bookService;
+        this.photoService = photoService;
     }
 
     @GetMapping
@@ -82,9 +90,9 @@ public class AuthorController {
 
     @GetMapping("/addBook")//hacer vista addBook de ultima y ver
     @PreAuthorize("hasAnyRole('ROLE_AUTHOR')")
-    public String addBook(HttpSession http, ModelMap model, Author author) {
+    public String addBook(HttpSession http, ModelMap model) {
         try {
-            author = (Author) http.getAttribute("authorsession");//capaz que no haga falta en el get
+            Author author = (Author) http.getAttribute("authorsession");//capaz que no haga falta en el get
             model.addAttribute("book", new Book());
             model.addAttribute("author", author);
             System.out.println("se logro el get");
@@ -98,10 +106,15 @@ public class AuthorController {
 
     @PostMapping("/addBook")
     @PreAuthorize("hasAnyRole('ROLE_AUTHOR')")
-    public String saveBook(HttpSession http, @ModelAttribute Author author, @ModelAttribute Book book, RedirectAttributes attr){
+    public String saveBook(HttpSession http, @ModelAttribute Author author, @ModelAttribute Book book, RedirectAttributes attr, @RequestParam("photoFile") MultipartFile file){
         try {
             System.out.println("entro en el post");
-            author = (Author) http.getAttribute("authorsession");
+            Photo photo = photoService.save(file);
+            
+            book.setPhoto(photo);
+            
+            //bookService.save(book);
+            //author = (Author) http.getAttribute("authorsession");
             authorService.assignBook(book, author);
             System.out.println("libro con autor guardado");
             return "redirect:/book";

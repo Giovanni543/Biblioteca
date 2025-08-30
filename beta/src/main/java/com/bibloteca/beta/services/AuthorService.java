@@ -107,10 +107,10 @@ public class AuthorService implements UserDetailsService {
     public void assignBook(Book book, Author author) throws Exception {
         book.setAuthor(author);
         //book.setAuthorFullName(author.getFullName());
+        //bookService.validate(book); //# Se recomienda validar y guardar mediante el servicio de author o en su controlador?
         
-        bookService.validate(book);
         bookService.save(book);
-        
+        System.out.println("Servicio de author "+ book.toString());
         ArrayList<Book> books = author.getListBook();
         
         books.add(book);

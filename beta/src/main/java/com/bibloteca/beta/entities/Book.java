@@ -49,4 +49,17 @@ public class Book implements Serializable{//no van a haber 20 ojetos del libro x
     //@ManyToOne   ver como seria el tema del stock si un atributo del libro(unidades disponibles) o de la libreria(stock de tal libro)
     //private Library library;
     //private String description???
+    
+    @Override
+    public String toString() {
+        return "Customer{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", category='" + category + '\'' +
+                ", stock='" + stock +
+                ", pages='"+ pages+
+                ", price='"+ price +
+                // ⚠️ No ponemos password ni photo
+                '}';
+    }
 }

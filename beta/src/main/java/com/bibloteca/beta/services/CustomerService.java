@@ -27,23 +27,24 @@ public class CustomerService implements UserDetailsService {
 
     private CustomerRepository customerRepository;
     private PhotoService photoService;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired//la inyeccion de dependencia en los constructores nos permite hacer tessting despues de manera mas sencilla
-    public CustomerService(CustomerRepository customerRepository, PhotoService photoService) {
+    public CustomerService(CustomerRepository customerRepository, PhotoService photoService, PasswordEncoder passwordEncoder) {
         this.customerRepository = customerRepository;
         this.photoService = photoService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional(value = Transactional.TxType.REQUIRED, rollbackOn = Exception.class)
     public void saveNew(Customer customer) throws Exception {
 
-        validate(customer);
         activateIfNew(customer);
+        validate(customer);
+        
         System.out.println("paso la validacion y el activado");
 
-        //String passwordEncripted = passwordEncoder.encode(customer.getPassword());
-        //customer.setPassword(passwordEncripted);
-        String passwordEncripted = new BCryptPasswordEncoder().encode(customer.getPassword());
+        String passwordEncripted = passwordEncoder.encode(customer.getPassword());
         customer.setPassword(passwordEncripted);
         System.out.println("hasta aca todo bien");
         customerRepository.save(customer);
@@ -74,7 +75,7 @@ public class CustomerService implements UserDetailsService {
 
         if (newPassword != null && !newPassword.isEmpty()) {//encripta nuevamente la contraseña si es que se ingresó una nueva
             System.out.println("cambio de contraseña");
-            principal.setPassword(new BCryptPasswordEncoder().encode(newPassword));
+            principal.setPassword(passwordEncoder.encode(newPassword));
         }
         validate(principal);
         customerRepository.save(principal);
@@ -136,6 +137,7 @@ public class CustomerService implements UserDetailsService {
         if (customer.getDni() < 10000000 || customer.getDni() > 90000000 || customer.getDni() == null || customer.getDni().toString().isEmpty() || customer.getDni().toString().equals(" ")) {
             throw new Exception("El DNI ingreado es invalido");
         }
+        //validar rol y active
 
     }
 

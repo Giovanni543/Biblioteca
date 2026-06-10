@@ -24,7 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Customer implements Serializable {//que es serializable?
+public class Customer implements Serializable {
 
     @Id
     @GeneratedValue(generator = "uuid")

@@ -2,6 +2,7 @@ package com.bibloteca.beta.services;
 
 import com.bibloteca.beta.entities.Author;
 import com.bibloteca.beta.entities.Book;
+import com.bibloteca.beta.entities.Photo;
 import com.bibloteca.beta.enums.Role;
 import java.util.List;
 import java.util.ArrayList;
@@ -16,73 +17,80 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class AuthorService implements UserDetailsService {
 
     private AuthorRepository authorRepository;
     private BookService bookService;
+    private PhotoService photoService;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public AuthorService(AuthorRepository authorRepository, BookService bookService) {
+    public AuthorService(AuthorRepository authorRepository, BookService bookService, PasswordEncoder passwordEncoder) {
         this.authorRepository = authorRepository;
         this.bookService = bookService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional(value = Transactional.TxType.REQUIRED, rollbackOn = Exception.class)
     public void saveNew(Author author) throws Exception {
 
-        isAlive(author);//cambiar por si el autor está vivo a isAlive o ver como hacer qsy
-        asignRole(author);
+        activateIfNew(author);
         validate(author);
+        
+        System.out.println("Paso validación y activado");
 
-        String passwordEncripted = new BCryptPasswordEncoder().encode(author.getPassword());
+        String passwordEncripted = passwordEncoder.encode(author.getPassword());
         author.setPassword(passwordEncripted);
         authorRepository.save(author);
     }
 
     @Transactional(value = Transactional.TxType.REQUIRED, rollbackOn = Exception.class)
-    public void save(Author author) throws Exception {
+    public void save(Author author, MultipartFile file, String newPassword) throws Exception {
 
-        authorRepository.save(author);
+        Author principal = authorRepository.findById(author.getId()).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        System.out.println("1 " + author.toString());
+        System.out.println("2 " + principal.toString());
+
+        principal.setName(author.getName());
+        principal.setLastName(author.getLastName());
+        principal.setEmail(author.getEmail());
+        principal.setPassword(author.getPassword());
+
+        if (file != null && !file.isEmpty()) {
+            System.out.println("actualizo foto");
+            Photo newPhoto = photoService.update(principal.getPhoto(), file);
+            principal.setPhoto(newPhoto);
+        }
+
+        if (newPassword != null && !newPassword.isEmpty()) {
+            System.out.println("actualiza contraseña");
+            principal.setPassword(passwordEncoder.encode(newPassword));
+        }
+        validate(principal);
+
+        authorRepository.save(principal);
     }
 
-    private void isAlive(Author author) {
-        if (author.getAlive() == null) {
+    private void activateIfNew(Author author) throws Exception {
+        if (author.getAlive() == null || author.getAlive().equals(false)) {
             author.setAlive(Boolean.TRUE);
-        }
-    }
-
-    private void isNotAlive(Author author) {//Si el autor no esta vivo quien crea su cuenta? un admin? para eso ponemos por determinado que este vivo si se crea desde la pag web
-        if (author.getAlive() == null || author.getAlive().equals(true)) {
-            author.setAlive(Boolean.FALSE);
-        }
-    }
-
-    private void onnOff(Author author) {
-        if (author.getAlive() == false) {
-            author.setAlive(Boolean.TRUE);
-        }
-        if (author.getAlive() == true) {
-            author.setAlive(Boolean.FALSE);
-        }
-    }
-
-    private void asignRole(Author author) {
-        if (author.getRole() == null) {
-            author.setRole(Role.AUTHOR);
+            author.setRole(Role.USER);
         }
     }
 
     private void validate(Author author) throws Exception {
         if (author.getName() == null || author.getName().isEmpty() || author.getName().equals(" ") || author.getName().length() < 3) {
-            throw new Exception("El nombre ingresado en inválido");
+            throw new Exception("El nombre ingresado es inválido");
         }
         if (author.getLastName() == null || author.getLastName().isEmpty() || author.getLastName().equals(" ") || author.getLastName().length() < 3) {
-            throw new Exception("El apellido ingresado en inválido");
+            throw new Exception("El apellido ingresado es inválido");
         }
         if (author.getRole() == null) {
             throw new Exception("El autor a crear no cuenta con el rol de AUTHOR");
@@ -90,15 +98,15 @@ public class AuthorService implements UserDetailsService {
         if (author.getAlive() != null && author.getAlive() == true) {//si el autor está vivo tiene que presentar los siguentes atributos
 
             if (author.getDni() == null || author.getDni() < 10000000 || author.getDni() > 90000000 || author.getDni().toString().isEmpty() || author.getDni().toString().equals(" ")) {
-                throw new Exception("El apellido ingresado en inválido");
+                throw new Exception("El DNI ingresado es inválido");
             }
 
             if (author.getEmail() == null || author.getEmail().isEmpty() || author.getEmail().equals(" ") || author.getEmail().length() < 8) {
-                throw new Exception("El apellido ingresado en inválido");
+                throw new Exception("El Email ingresado esinválido");
             }
 
             if (author.getPassword() == null || author.getPassword().isEmpty() || author.getPassword().equals(" ") || author.getPassword().length() < 8) {
-                throw new Exception("El apellido ingresado en inválido");
+                throw new Exception("La contraseña ingresada es inválida");
             }
         }
     }
@@ -108,11 +116,10 @@ public class AuthorService implements UserDetailsService {
         book.setAuthor(author);
         //book.setAuthorFullName(author.getFullName());
         //bookService.validate(book); //# Se recomienda validar y guardar mediante el servicio de author o en su controlador?
-        
         bookService.save(book);
-        System.out.println("Servicio de author "+ book.toString());
+        System.out.println("Servicio de author " + book.toString());
         ArrayList<Book> books = author.getListBook();
-        
+
         books.add(book);
         //author.setListBook(books);????
         System.out.println("Se agrego el libro a la lista en el índice " + books.size());
@@ -124,7 +131,7 @@ public class AuthorService implements UserDetailsService {
             i++;
         }
         author.setListBook(books);
-        save(author);
+        authorRepository.save(author);
 
     }
 
@@ -155,29 +162,27 @@ public class AuthorService implements UserDetailsService {
         return author;
     }
 
-    /*@Transactional
-    public Author findByFullName(String name, String last_name)throws Exception{
-        Author author = authorRepository.searchByFullName(name, last_name);
-        System.out.println("volvió del repositorio");
-        if(author == null){
-            System.out.println("No se encontro ningún autor con dicho nombre y apellido en la base de datos");
+    private void isAlive(Author author) {
+        if (author.getAlive() == null) {
+            author.setAlive(Boolean.TRUE);
         }
-        return author;
     }
-    
-    @Transactional
-    public Author findOrCreate(String name, String lastName)throws Exception{
-        Author author = findByFullName(name, lastName);
-        if(author == null){
-            author = new Author();
-            author.setName(name);
-            author.setLastName(lastName);
-            asignRole(author);
-            isNotAlive(author);//para confirmar que un autor esta vivo ver como lo puedo crear con todos los atriutos//puedo poner un boton para editar(validar)
-            System.out.println("se asigno atributos a un nuevo autor");
+
+    private void isNotAlive(Author author) {//Si el autor no esta vivo quien crea su cuenta? un admin? para eso ponemos por determinado que este vivo si se crea desde la pag web
+        if (author.getAlive() == null || author.getAlive().equals(true)) {
+            author.setAlive(Boolean.FALSE);
         }
-        return author;
-    }*/
+    }
+
+    private void onnOff(Author author) {
+        if (author.getAlive() == false) {
+            author.setAlive(Boolean.TRUE);
+        }
+        if (author.getAlive() == true) {
+            author.setAlive(Boolean.FALSE);
+        }
+    }
+
     @Transactional
     public List<Author> getAll() {
         return authorRepository.getAllOrganized();

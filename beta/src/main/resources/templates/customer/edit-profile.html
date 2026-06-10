@@ -17,7 +17,7 @@
             <!-- Columna izquierda: datos -->
             <div class="col-md-8">
                 <form th:action="@{/customer/edit-profile}" method="POST" th:object="${customer}" enctype="multipart/form-data" class="form container m-5 justify-content-between float-left">
-                    <input type="hidden" th:field="*{id}">
+                    <input type="hidden" th:field="*{id}"/>
                     <div class="mb-3">
                         <label for="InputName" class="form-label">Nombre:</label>
                         <input type="text" class="form-control" th:field="*{name}" id="Name">
@@ -49,7 +49,7 @@
                         </div>
                     </div>
                     <div class="text-center">
-                        <input type="submit" value="guardar" class="btn btn-outline-success my-sm-0">
+                        <input type="submit" value="guardar" class="btn btn-primary">
                     </div>
                     <div class="text-muted py-1 mb-3">
                         <p class="float-end mb-1">

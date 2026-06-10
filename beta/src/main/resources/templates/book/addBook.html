@@ -14,27 +14,37 @@
         <nav th:replace="fragments/fragments::navbar"></nav>
         <h1>Formulario de creacion de Libro</h1>
         <div class="container">
-            <form th:action="@{/author/addBook}" method="POST" th:object="${book}">
+            <form th:action="@{/author/addBook}" method="POST" th:object="${book}" enctype="multipart/form-data" class="form container m-5 justify-content-between float-left">
                 <!--th:action="@{/book/form}"-->
-                <label class="form-label"> Nombre:
-                    <input type="text" placeholder="Nombre del libro" th:field="${book.name}" />
-                </label>
-                <label class="form-label"> Categoría:
-                    <input type="text" placeholder="Drama, Terror, etc" th:field="${book.category}" />
-                </label>
-                <label class="form-label"> Unidades disponibles:
-                    <input type="text" placeholder="Stock" th:field="${book.stock}" />
-                </label>
-                <label class="form-label"> Páginas:
-                    <input type="text" placeholder="Número de páginas" th:field="${book.pages}" />
-                </label>
-                <label class="form-label"> Precio:
-                    <input type="number" placeholder="Precio en pesos ARG" th:field="${book.price}" />
-                </label>
-
+                <div class="mb-3">
+                    <label class="form-label"> Nombre:</label>
+                    <input type="text" class="form-control" placeholder="Nombre del libro" th:field="*{name}" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label"> Categoría:</label>
+                    <input type="text" class="form-control" placeholder="Drama, Terror, etc" th:field="*{category}" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label"> Unidades disponibles:</label>
+                    <input type="text" class="form-control" placeholder="Stock" th:field="*{stock}" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label"> Páginas:</label>
+                    <input type="text" class="form-control" placeholder="Número de Páginas" th:field="*{pages}" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label"> Precio:</label>
+                    <input type="text" class="form-control" placeholder="Precio en pesos ARG" th:field="*{price}" />
+                </div>
+                <div>
+                    <label class="form-label"> Foto de Portada:
+                    <input type="file" name="photoFile" class="form-control mb-2">
+                </div>
                 <input type='submit' value='guardar'/>
+                
+                <p th:if="${error != null}" th:text="${error}" style="color : red;"></p>
             </form>
-            <p class="text-danger"  th:text="${error != null ? error : ''}"></p>
+            
         </div>
     </body>
 </html>

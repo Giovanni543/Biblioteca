@@ -15,8 +15,8 @@
         <nav th:replace="fragments/fragments::navbar"></nav>
         <h2>Formulario de registro de Autor</h2>
         <div style="width: 50%; margin-left: 25%;">
-            <form th:action="@{/author/form}" method="POST" th:object="${author}">
-                <imput type="hidden" th:field="*{id}" /><!--!!!-->
+            <form th:action="@{/author/form}" method="POST" th:object="${author}" enctype="multipart/form-data">
+                <input type="hidden" th:field="*{id}" /><!--!!!-->
                 <label class="form-label"> Nombre:
                     <input type="text" th:field="*{name}" placeholder="Nombre"/>
                 </label>
@@ -27,11 +27,14 @@
                     <input type="text" th:field="*{email}" placeholder="Email"/>
                 </label>
                 <label class="form-label"> Contraseña:
-                    <input type="text" th:field="*{password}" placeholder="Contraseña"/>
+                    <input type="password" th:field="*{password}" placeholder="Contraseña"/>
                 </label>
                 <label class="form-label"> DNI:
                     <input type="text" th:field="*{dni}" placeholder="DNI"/>
                 </label>
+                <label class="form-label"> Foto De Perfil:
+                    <input type="file" name="archivo" accept="image/*"/>
+                <input type='submit' value='guardar'/>
                 <!--<button type="submit" class="btn btn-primary">Submit</button>-->
 
                 <input type='submit' value='guardar'/>

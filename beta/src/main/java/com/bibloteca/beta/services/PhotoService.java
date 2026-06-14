@@ -29,9 +29,30 @@ public class PhotoService {
     }
 
     @Transactional
+    public Photo update(Photo oldPhoto, MultipartFile file) throws Exception {
+        if (file != null && !file.isEmpty()) {
+            Photo photo;
+
+            // Si ya había una, actualizar la misma
+            if (oldPhoto != null) {
+                photo = oldPhoto;
+            } else {
+                photo = new Photo();
+            }
+
+            photo.setMime(file.getContentType());
+            photo.setName(file.getOriginalFilename());
+            photo.setContent(file.getBytes());
+
+            return photoRepository.save(photo);
+        }
+        return oldPhoto; // si no se subió nada, devolver la misma
+    }
+
+    @Transactional
     public Optional<Photo> findById(String id) throws Exception {
-        Optional<Photo> photo = photoRepository.findById(id);
-        if (photo == null) {
+        Optional<Photo> photo = photoRepository.findById(id); //nunca devuelve null
+        if (!photo.isPresent()) {
             throw new Exception("La foto no fue encontrada");
         }
         return photo;

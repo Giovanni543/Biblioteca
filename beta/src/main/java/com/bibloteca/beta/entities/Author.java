@@ -20,13 +20,9 @@ import javax.persistence.FetchType;
 import javax.persistence.OneToOne;
 
 @Entity
-<<<<<<< HEADasklhgf
-=======
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@sdgharhgq
->>>>>>> 8ac0af87a2eb6ee505a88673d0cd52934a2efda4
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Author implements Serializable {//implements serializable??
 

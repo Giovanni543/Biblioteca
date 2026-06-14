@@ -20,7 +20,7 @@ import javax.persistence.FetchType;
 import javax.persistence.OneToOne;
 
 @Entity
-<<<<<<< HEAD
+<<<<<<< HEADasklhgf
 =======
 @Data
 @AllArgsConstructor

@@ -55,10 +55,15 @@ public class AuthorController {
     @PostMapping("/form")
     public String SaveAuthor(@ModelAttribute Author author, ModelMap model, RedirectAttributes attr){//sobre el ModelMap
         try {
-            ArrayList<Book> books = new ArrayList<>();
-            author.setListBook(books);
-            System.out.println("se instanció y guardo el arraylist del autor");
-            authorService.saveNew(author);
+            if(author.getId() == null){
+                ArrayList<Book> books = new ArrayList<>();
+                author.setListBook(books);
+                authorService.saveNew(author);
+                System.out.println("se instanció y guardo el arraylist del autor");
+            }else{
+                authorService.save(author);
+            }
+            
             System.out.println("Author guardado :)");
             return "/author/profile";
         } catch (Exception e) {

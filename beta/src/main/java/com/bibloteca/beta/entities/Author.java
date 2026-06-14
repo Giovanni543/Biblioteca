@@ -18,9 +18,6 @@ import java.util.List;
 import javax.persistence.OneToOne;
 
 @Entity
-//@Data
-//@AllArgsConstructor
-//@NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Author implements Serializable {//implements serializable??
     

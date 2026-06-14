@@ -47,7 +47,7 @@
                 </form>
             </div>
             <div class="col-md-4 d-flex justify-content-center align-items-start" th:if="${customer.photo != null}">
-                <img th:src="@{/customer/photo/{id}(id=${customer.photo.id})}" alt="Foto de perfil" class="rounded-circle shadow" width="150" height="150"/>
+                <img th:src="@{/customer/photo/{id}(id=${customer.photo.id})}" alt="Foto de perfil" class="rounded-circle shadow" width="200" height="200"/>
                 <!--<img th:src="${customer.picture != null} ? @{/customer/picture/{id}(id=${customer.id})} : @{/img/default-profile.jpg}" alt="Foto de perfil" width="150"/>
                 <img th:value="${customer.picture}" class="rounded-circle mx-auto d-block" width="250" height="250"></img>-->
             </div>

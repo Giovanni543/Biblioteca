@@ -6,6 +6,7 @@ import java.util.List;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class BookService {
@@ -21,9 +22,12 @@ public class BookService {
     public void save (Book book)throws Exception{
         //Author author = authorService.findOrCreate(book.getAuthor().getName(), book.getAuthor().getLastName());
         //book.setAuthor(author);
-        //System.out.println("Se asigno un autor al libro");
+        System.out.println("Entro al servicio de libro");
+        
+        validate(book);
         activateDeactivate(book);
         
+        System.out.println("libro: "+ book.toString());
         bookRepository.save(book);
     }
     

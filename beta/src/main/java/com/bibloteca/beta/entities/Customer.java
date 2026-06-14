@@ -24,7 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Customer implements Serializable {//que es serializable?
+public class Customer implements Serializable {
 
     @Id
     @GeneratedValue(generator = "uuid")
@@ -51,7 +51,14 @@ public class Customer implements Serializable {//que es serializable?
     //agregarle el atributo rango
     //lista de libros comprados (historial)
     
-    /*public String getFullName(){
-        return (this.name + " " + this.lastName);
-    }*/
+    @Override
+    public String toString() {
+        return "Customer{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", role=" + role +
+                // ⚠️ No ponemos password ni photo
+                '}';
+    }
 }

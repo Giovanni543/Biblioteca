@@ -24,9 +24,9 @@
                         <th>name</th>
                         <th>lastName</th>
                         <th>email</th>
-                        <th>password</th>
+<!--                        <th>password</th>-->
                         <th>dni</th>
-                        <th>balance</th>
+                        <th>ver</th>
                     </tr>
                 </thead>
                 <tbody th:each="customer : ${customers}">
@@ -35,9 +35,9 @@
                         <th scope="row" th:text="${customer.name}"></th>
                         <td th:text="${customer.lastName}"></td>
                         <td th:text="${customer.email}"></td>
-                        <td th:text="${customer.password}"></td>
+<!--                        <td th:text="${customer.password}"></td>-->
                         <td th:text="${customer.dni}"></td>
-                        <td th:text="${customer.balance}"></td>
+                        <td><a href="/"><i class="fa-solid fa-eye"></i></a></td><!--tendria que ir al perfil o la vista del customer y llevar los datos del mismo-->
                     </tr>
                 </tbody>
             </table>

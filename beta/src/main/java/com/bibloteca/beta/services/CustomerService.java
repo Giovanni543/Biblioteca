@@ -51,10 +51,10 @@ public class CustomerService implements UserDetailsService {
     }
 
     @Transactional(value = Transactional.TxType.REQUIRED, rollbackOn = Exception.class)
-    public void save(Customer customer, MultipartFile file, String newPassword) throws Exception {
+    public Customer update(Customer customer, MultipartFile file, String newPassword) throws Exception {
         System.out.println("entro al servicio");
         Customer principal = customerRepository.findById(customer.getId())//customer es el objeto solo con los atributos modificados, principal es el objeto traído de la bbdd
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new RuntimeException("Autor no encontrado"));
 
         System.out.println(customer.toString());
         System.out.println(principal.toString());
@@ -78,8 +78,8 @@ public class CustomerService implements UserDetailsService {
             principal.setPassword(passwordEncoder.encode(newPassword));
         }
         validate(principal);
-        customerRepository.save(principal);
         System.out.println("kkk");
+        return customerRepository.save(principal);
     }
 
     private void activateIfNew(Customer customer) throws Exception {
@@ -122,16 +122,16 @@ public class CustomerService implements UserDetailsService {
     }
 
     private void validate(Customer customer) throws Exception {
-        if (customer.getName().isEmpty() || customer.getName().length() < 3 || customer.getName().equals(" ") || customer.getName() == null) {
+        if (customer.getName() == null || customer.getName().isEmpty() || customer.getName().length() < 3 || customer.getName().equals(" ")) {
             throw new Exception("El nombre ingresado es invalido");
         }
-        if (customer.getLastName().isEmpty() || customer.getLastName().equals(" ") || customer.getLastName() == null || customer.getLastName().length() < 3) {
+        if (customer.getLastName() == null || customer.getLastName().equals(" ") || customer.getLastName().isEmpty() || customer.getLastName().length() < 3) {
             throw new Exception("El apellido ingreado es invalido");
         }
-        if (customer.getEmail().isEmpty() || customer.getEmail() == null || customer.getEmail().equals(" ") || customer.getEmail().length() < 8) {
+        if (customer.getEmail() == null || customer.getEmail().isEmpty() || customer.getEmail().equals(" ") || customer.getEmail().length() < 8) {
             throw new Exception("El email ingresado es invalido");
         }
-        if (customer.getPassword().isEmpty() || customer.getPassword() == null || customer.getPassword().equals(" ") || (customer.getPassword().length() < 8)) {
+        if ( customer.getPassword() == null || customer.getPassword().isEmpty() || customer.getPassword().equals(" ") || (customer.getPassword().length() < 8)) {
             throw new Exception("La contraseña ingresada es invalida");
         }//si el dni ingresado es menor a 10 millones o mayor a 90 millones se tiene como valor erroneo
         if (customer.getDni() < 10000000 || customer.getDni() > 90000000 || customer.getDni() == null || customer.getDni().toString().isEmpty() || customer.getDni().toString().equals(" ")) {

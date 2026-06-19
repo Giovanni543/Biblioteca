@@ -68,14 +68,23 @@ public class AuthorController {
     }
 
     @PostMapping("/form")
-    public String SaveAuthor(@ModelAttribute Author author, ModelMap model, RedirectAttributes attr){//sobre el ModelMap
+    public String SaveAuthor(@ModelAttribute Author author,@RequestParam(required = false) MultipartFile file,
+            @RequestParam(required = false) String newPassword, ModelMap model, RedirectAttributes attr){//sobre el ModelMap
         try {
+            if(author.getId() == null){
+                List<Book> books = new ArrayList<>();
+                author.setListBook(books);
+                authorService.saveNew(author);
+                System.out.println("se instanció y guardo el arraylist del autor");
+            }else{
+                authorService.update(author, file, newPassword);
+            }
+            
             //ArrayList<Book> books = new ArrayList<>();//En servicio
             //author.setListBook(books);
             System.out.println("se instanció y guardo el arraylist del autor");
-            authorService.saveNew(author);
             System.out.println("Author guardado :)");
-            return "/author/profile";
+            return "redirect:/author/profile";
         } catch (Exception e) {
             attr.addFlashAttribute("error", e.getMessage());
             System.out.println("Exception en controlador: " + e.getMessage());
@@ -92,6 +101,33 @@ public class AuthorController {
         } catch (Exception e) {
             model.put("error", e.getMessage());
             return "redirect:";
+        }
+    }
+    
+    @GetMapping("/edit-profile")
+    public String editGet(ModelMap model, HttpSession http){
+        try{
+            Author author = (Author) http.getAttribute("authorsession");
+            model.addAttribute("author", author);
+            System.out.println("author get"+ author.toString());
+            return "/author/edit-profile";
+        }catch(Exception e){
+            model.put("error", e.getMessage());
+            return "author/profile";
+        }
+    }
+    
+    @PostMapping("/edit-profile")
+    public String editPost(@ModelAttribute Author author, @RequestParam("photoFile") MultipartFile file, @RequestParam(value = "newPassword", required =false)String newPassword, RedirectAttributes attr, HttpSession http){
+        try{
+            //authorService.update(author, file, newPassword);
+            Author actualizado = authorService.update(author, file, newPassword);
+            http.setAttribute("authorsession", actualizado);
+            attr.addFlashAttribute("succed", "edit del perfil de author EXITOSO");
+            return "redirect:/logout";
+        }catch(Exception e){
+            attr.addFlashAttribute("error", e.getMessage());
+            return "/index";
         }
     }
 
@@ -113,16 +149,23 @@ public class AuthorController {
 
     @PostMapping("/addBook")
     @PreAuthorize("hasAnyRole('ROLE_AUTHOR')")
-    public String saveBook(HttpSession http, @ModelAttribute Author author, @ModelAttribute Book book, RedirectAttributes attr, @RequestParam("photoFile") MultipartFile file){
+    public String saveBook(HttpSession http, @ModelAttribute Book book, RedirectAttributes attr, @RequestParam("photoFile") MultipartFile file){
         try {
             System.out.println("entro en el post");
+            Author author = (Author) http.getAttribute("authorsession");
             Photo photo = photoService.save(file);
             
             book.setPhoto(photo);
             
-            //bookService.save(book);
-            //author = (Author) http.getAttribute("authorsession");
-            authorService.assignBook(book, author);
+            System.out.println(author.toString());
+            System.out.println(author.getId());
+            if(author.getListBook() == null){
+                System.out.println("La lista esta en null");
+            }else{
+                System.out.println("lista no vacia");
+            }
+            
+            authorService.assignBook(book, author.getId());
             System.out.println("libro con autor guardado");
             return "redirect:/book";
         } catch (Exception e) {
@@ -138,7 +181,7 @@ public class AuthorController {
 
         Optional<Photo> photoOptional = photoService.findById(id);//preguntar por este procedimiento porque lo tengo que hacer optional y no photo
 
-        if (photoOptional != null) {
+        if (photoOptional.isPresent()) {
             Photo photo = photoOptional.get();
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.valueOf(photo.getMime()));

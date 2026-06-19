@@ -32,23 +32,41 @@
 
                             <a sec:authorize="isAuthenticated()" class="btn btn-outline-success my-sm-0" th:href="@{/logout}">Cerrar Sesión</a>
 
-                            <a sec:authorize="isAuthenticated()" class="nav-link active" th:if="${session.customersession != null}" th:href="@{/customer/profile}">Perfil </a> 
+                            <a sec:authorize="hasAnyRole('AUTHOR')" class="nav-link active" th:if="${session.authorsession != null}" th:href="@{/author/profile}">Perfil </a> 
+                            <a sec:authorize="hasAnyRole('USER')" class="nav-link active" th:if="${session.customersession != null}" th:href="@{/customer/profile}">Perfil </a>
 
                         </form>
                         <!--<a sec:authorize="hasAnyRole('USER')"class="nav-link active" href="/customer/profile">Perfil</a>-->
-                        <div sec:authorize="isAuthenticated()" class="dropdown text-end" th:if="${session.customersession != null}">
+                        <div sec:authorize="isAuthenticated()" class="dropdown text-end">
                             <a class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-                                <img th:if="${session.customersession.photo != null}"
-                                    th:src="@{/customer/photo/{id}(id=${session.customersession.photo.id})}" alt="Foto de perfil" class="rounded-circle" width="50" height="50">
+                                <th:block th:if="${session.customersession != null}">
+                                    <img th:if="${session.customersession.photo != null}"
+                                         th:src="@{/customer/photo/{id}(id=${session.customersession.photo.id})}"
+                                         class="rounded-circle" width="50" height="50">
+                                </th:block>
+                                <th:block th:if="${session.authorsession != null}">
+                                    <img th:if="${session.authorsession.photo != null}"
+                                         th:src="@{/author/photo/{id}(id=${session.authorsession.photo.id})}"
+                                         class="rounded-circle" width="50" height="50">
+                                </th:block>
+<!--                                <img th:if="${session.customersession.photo != null and session.customersession.photo != null}"
+                                     th:src="@{/customer/photo/{id}(id=${session.customersession.photo.id})}" alt="Foto de perfil" class="rounded-circle" width="50" height="50">
+                                <img th:if="${session.authorsession.photo != null and session.authorsession.photo != null}"
+                                     th:src="@{/author/photo/{id}(id=${session.authorsession.photo.id})}" alt="Foto de perfil" class="rounded-circle" width="50" height="50">-->
                             </a>
-                            <ul class="dropdown-menu text-small" aria-labelledby="dropdownUser1">
+                            <ul th:if="${session.customersession != null}" class="dropdown-menu text-small" aria-labelledby="dropdownUser1">
                                 <li><a class="dropdown-item" th:href="@{/customer/profile}">Perfil</a></li>
                                 <li><a class="dropdown-item" th:href="@{/customer/edit-profile}">Editar perfil</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" th:href="@{/logout}">Cerrar Sesión</a></li>
                             </ul>
+                            <ul th:if="${session.authorsession != null}" class="dropdown-menu text-small" aria-labelledby="dropdownUser1">
+                                <li><a class="dropdown-item" th:href="@{/author/profile}">Perfil</a></li>
+                                <li><a class="dropdown-item" th:href="@{/author/edit-profile}">Editar perfil</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" th:href="@{/logout}">Cerrar Sesión</a></li>
+                            </ul>
                         </div>
-
                     </div>
                 </div>
 

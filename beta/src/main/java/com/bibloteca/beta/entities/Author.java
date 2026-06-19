@@ -47,13 +47,13 @@ public class Author implements Serializable {//implements serializable??
 
     private Boolean alive;
 
-    //mappedBY(name = 'author')
-    private ArrayList<Book> listBook;
+    @OneToMany(mappedBy = "author")
+    private List<Book> listBook = new ArrayList<>();
 
     @Override
     public String toString() {
-        return "Customer{" +
-                "id='" + id + '\'' +
+        return 
+                "{id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", role=" + role +

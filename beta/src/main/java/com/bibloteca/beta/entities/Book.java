@@ -11,6 +11,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -45,6 +46,7 @@ public class Book implements Serializable{//no van a haber 20 ojetos del libro x
     private Boolean active;
 
     @ManyToOne
+    //@JoinColumn(name = "author_id")
     private Author author;
     //@ManyToOne   ver como seria el tema del stock si un atributo del libro(unidades disponibles) o de la libreria(stock de tal libro)
     //private Library library;
@@ -52,8 +54,8 @@ public class Book implements Serializable{//no van a haber 20 ojetos del libro x
     
     @Override
     public String toString() {
-        return "Customer{" +
-                "id='" + id + '\'' +
+        return 
+                "{id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", category='" + category + '\'' +
                 ", stock='" + stock +

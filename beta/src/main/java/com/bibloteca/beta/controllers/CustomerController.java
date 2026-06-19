@@ -116,9 +116,9 @@ public class CustomerController {
     @PostMapping("edit-profile")
     public String editPost(@ModelAttribute Customer customer, @RequestParam("photoFile") MultipartFile file, @RequestParam(value = "newPassword", required =false)String newPassword, RedirectAttributes attr, HttpSession http){
         try {
-
-            customerService.save(customer, file, newPassword);//La foto y Contraseña los gestiono separado de los demas atributos
-            http.setAttribute("customersession", customer);//actualiza la sessión asi me aparece el customer actualizado
+            
+            Customer actualizado = customerService.update(customer, file, newPassword);//La foto y Contraseña los gestiono separado de los demas atributos
+            http.setAttribute("customersession", actualizado);//actualiza la sessión asi me aparece el customer actualizado
             attr.addFlashAttribute("success", "Edit del Perfil EXITOSO ");
             System.out.println("3");
             return "redirect:/logout";

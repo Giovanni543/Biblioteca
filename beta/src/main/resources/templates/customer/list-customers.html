@@ -9,6 +9,7 @@
               rel="stylesheet" 
               integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" 
               crossorigin="anonymous">
+        <script src="https://kit.fontawesome.com/c092a80870.js" crossorigin="anonymous"></script>
     </head>
     <body>
         <nav th:replace="fragments/fragments::navbar"></nav>
@@ -20,22 +21,18 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <!--id  scope ="col" -->
                         <th>name</th>
                         <th>lastName</th>
                         <th>email</th>
-<!--                        <th>password</th>-->
                         <th>dni</th>
                         <th>ver</th>
                     </tr>
                 </thead>
                 <tbody th:each="customer : ${customers}">
                     <tr>
-                        <!--<td th:text="${customer.id}"></td>-->
                         <th scope="row" th:text="${customer.name}"></th>
                         <td th:text="${customer.lastName}"></td>
                         <td th:text="${customer.email}"></td>
-<!--                        <td th:text="${customer.password}"></td>-->
                         <td th:text="${customer.dni}"></td>
                         <td><a href="/"><i class="fa-solid fa-eye"></i></a></td><!--tendria que ir al perfil o la vista del customer y llevar los datos del mismo-->
                     </tr>

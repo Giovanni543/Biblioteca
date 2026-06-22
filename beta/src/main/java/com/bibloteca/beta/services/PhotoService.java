@@ -50,11 +50,22 @@ public class PhotoService {
     }
 
     @Transactional
-    public Optional<Photo> findById(String id) throws Exception {
-        Optional<Photo> photo = photoRepository.findById(id); //nunca devuelve null
-        if (!photo.isPresent()) {
+    public Photo findById(String id) throws Exception {
+        Photo photo = photoRepository.findById(id).orElseThrow(() -> new Exception("no se encontro photo")); //nunca devuelve null
+        if (photo == null || photo.getContent() == null) {
             throw new Exception("La foto no fue encontrada");
         }
         return photo;
+    }
+
+    @Transactional//tendria que ver si son nesesarias tanto findById como getOne
+    public Photo getOne(String id) throws Exception {
+
+        Photo photo = photoRepository.findById(id).orElseThrow(() -> new Exception("Foto no encontrada"));
+        if (photo == null || photo.getContent() == null) {
+            throw new Exception("La foto no fue encontrada");
+        }
+        return photo;
+                
     }
 }

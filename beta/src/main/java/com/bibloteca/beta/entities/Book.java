@@ -44,6 +44,7 @@ public class Book implements Serializable{//no van a haber 20 ojetos del libro x
     private Integer pages;
     private Double price;
     private Boolean active;
+    private String description;
 
     @ManyToOne
     //@JoinColumn(name = "author_id")

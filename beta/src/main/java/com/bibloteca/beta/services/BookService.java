@@ -3,6 +3,7 @@ package com.bibloteca.beta.services;
 import com.bibloteca.beta.entities.Book;
 import com.bibloteca.beta.repositories.BookRepository;
 import java.util.List;
+import java.util.Optional;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,11 +44,12 @@ public class BookService {
     
     @Transactional
     public Book findById(String id)throws Exception{
-        Book book = bookRepository.getById(id);
+        return bookRepository.findById(id).orElseThrow(() -> new Exception("No se encontró el libro"));
+        /*Book book = bookRepository.findById(id);
         if(book == null){
             throw new Exception("No se encontro al libro con ese Id");
         }
-        return book;
+        return book;*/
     }
     
     @Transactional

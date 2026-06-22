@@ -133,10 +133,9 @@ public class CustomerController {
     @ResponseBody
     public ResponseEntity<byte[]> mostrarImagen(@PathVariable String id) throws Exception {
 
-        Optional<Photo> photoOptional = photoService.findById(id);//preguntar por este procedimiento porque lo tengo que hacer optional y no photo
+        Photo photo = photoService.findById(id);//preguntar por este procedimiento porque lo tengo que hacer optional y no photo
 
-        if (photoOptional != null) {
-            Photo photo = photoOptional.get();
+        if (photo != null) {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.valueOf(photo.getMime()));
             return new ResponseEntity<>(photo.getContent(), headers, HttpStatus.OK);

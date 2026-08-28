@@ -7,6 +7,7 @@ import com.bibloteca.beta.services.AuthorService;
 import com.bibloteca.beta.services.BookService;
 import com.bibloteca.beta.services.PhotoService;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import javax.servlet.http.HttpSession;
@@ -73,7 +74,7 @@ public class AuthorController {
         try {
             if(author.getId() == null){
                 List<Book> books = new ArrayList<>();
-                author.setListBook(books);
+                author.setBookList(books);
                 authorService.saveNew(author);
                 System.out.println("se instanció y guardo el arraylist del autor");
             }else{
@@ -95,7 +96,12 @@ public class AuthorController {
     @GetMapping("/profile")
     public String profile(ModelMap model, HttpSession http){
         try {
-            Author author = (Author) http.getAttribute("authorsession");
+            Author sessionAuthor = (Author) http.getAttribute("authorsession");
+            Author author = authorService.findById(sessionAuthor.getId());
+            
+            
+            author.getBookList().sort(Comparator.comparing(Book :: getPublicationDate, Comparator.nullsLast(Comparator.reverseOrder())));
+            
             model.addAttribute("author", author);
             return "/author/profile";
         } catch (Exception e) {
@@ -159,7 +165,7 @@ public class AuthorController {
             
             System.out.println(author.toString());
             System.out.println(author.getId());
-            if(author.getListBook() == null){
+            if(author.getBookList() == null){
                 System.out.println("La lista esta en null");
             }else{
                 System.out.println("lista no vacia");
@@ -179,10 +185,9 @@ public class AuthorController {
     @ResponseBody
     public ResponseEntity<byte[]> mostrarImagen(@PathVariable String id) throws Exception {
 
-        Optional<Photo> photoOptional = photoService.findById(id);//preguntar por este procedimiento porque lo tengo que hacer optional y no photo
+        Photo photo = photoService.findById(id);//preguntar por este procedimiento porque lo tengo que hacer optional y no photo
 
-        if (photoOptional.isPresent()) {
-            Photo photo = photoOptional.get();
+        if (photo != null ) {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.valueOf(photo.getMime()));
             return new ResponseEntity<>(photo.getContent(), headers, HttpStatus.OK);

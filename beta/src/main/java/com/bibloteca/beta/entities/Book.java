@@ -1,11 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.bibloteca.beta.entities;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -20,6 +16,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Entity
 @Data
@@ -44,13 +41,15 @@ public class Book implements Serializable{//no van a haber 20 ojetos del libro x
     private Integer pages;
     private Double price;
     private Boolean active;
+    private String description;
+    
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private LocalDate publicationDate;
 
     @ManyToOne
     //@JoinColumn(name = "author_id")
     private Author author;
-    //@ManyToOne   ver como seria el tema del stock si un atributo del libro(unidades disponibles) o de la libreria(stock de tal libro)
-    //private Library library;
-    //private String description???
+    
     
     @Override
     public String toString() {

@@ -45,11 +45,6 @@ public class BookService {
     @Transactional
     public Book findById(String id)throws Exception{
         return bookRepository.findById(id).orElseThrow(() -> new Exception("No se encontró el libro"));
-        /*Book book = bookRepository.findById(id);
-        if(book == null){
-            throw new Exception("No se encontro al libro con ese Id");
-        }
-        return book;*/
     }
     
     @Transactional
@@ -62,27 +57,36 @@ public class BookService {
     }
     
     @Transactional
+    public List<Book> findAllById(List<String> booksId) throws Exception{
+        List<Book> books = bookRepository.findAllById(booksId);
+        if(books == null){
+            throw new Exception("no se encontro a ningun libro con dichos IDs");
+        }
+        return books;
+    }
+    
+    @Transactional
     public List<Book> getAll(){
         return bookRepository.getAllOrganized();
     }
     
     public void validate(Book book)throws Exception{
-        if(book.getName().isEmpty() || book.getName().length() < 5 || book.getName().equals(" ") || book.getName() == null){//poner en la vista las condiciones minimas para publicar un libro
+        if(book.getName() == null || book.getName().isEmpty() || book.getName().length() < 5 || book.getName().equals(" ")){//poner en la vista las condiciones minimas para publicar un libro
             throw new Exception("El nombre ingresado es inválido");//poner obligatorio la foto del libro tmb
         }
         if(book.getAuthor() == null){
             throw new Exception("El libro tiene que tener asignado un autor que lo haya publicado");
         }
-        if(book.getCategory().isEmpty() || book.getCategory().length() < 5 || book.getCategory().equals(" ") || book.getCategory() == null){
+        if(book.getCategory() == null || book.getCategory().isEmpty() || book.getCategory().length() < 5 || book.getCategory().equals(" ")){
             throw new Exception("Categoria ingresada es inválida");
         }
-        if(book.getStock() < 5 || book.getStock() == null){
+        if(book.getStock() == null || book.getStock() < 5){
             throw new Exception("El número de stock ingresado es inválido");
         }
-        if(book.getPages() < 10 || book.getPages() == null){
+        if(book.getPages() == null || book.getPages() < 10){
             throw new Exception("El número de páginas ingresadas es inválida");
         }
-        if(book.getPrice() < 5 || book.getPrice() == null || book.getPrice().toString().isEmpty() || book.getPrice().toString().equals(" ")){
+        if(book.getPrice() == null || book.getPrice() < 5 || book.getPrice().toString().isEmpty() || book.getPrice().toString().equals(" ")){
             throw new Exception("El precio de venta ingresado es inválido");
         }
         System.out.println("Paso validación");

@@ -1,12 +1,23 @@
 package com.bibloteca.beta.controllers;
 
+import com.bibloteca.beta.entities.Book;
 import com.bibloteca.beta.entities.Customer;
 import com.bibloteca.beta.entities.Photo;
+import com.bibloteca.beta.entities.Sale;
+import com.bibloteca.beta.entities.CartItem;
 import com.bibloteca.beta.repositories.PhotoRepository;
+import com.bibloteca.beta.services.BookService;
+import com.bibloteca.beta.services.CartItemService;
 import com.bibloteca.beta.services.CustomerService;
 import com.bibloteca.beta.services.PhotoService;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import static java.util.Spliterators.iterator;
 import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -34,14 +45,17 @@ public class CustomerController {
 
     private CustomerService customerService;
     private PhotoService photoService;
+    private BookService bookService;
+    private CartItemService cartItemService;
 
     @Autowired
-    public CustomerController(CustomerService customerService, PhotoService photoService) {
+    public CustomerController(CustomerService customerService, PhotoService photoService, BookService bookService, CartItemService cartItemService) {
         this.customerService = customerService;
         this.photoService = photoService;
+        this.bookService = bookService;
+        this.cartItemService = cartItemService;
     }
 
-    
     @GetMapping
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     public String ListCustomers(ModelMap model) {
@@ -87,8 +101,11 @@ public class CustomerController {
     @GetMapping("/profile")
     public String showProfile(ModelMap model, HttpSession http) {
         try {
-            Customer customer = (Customer) http.getAttribute("customersession");
-            System.out.println("cc" + customer.toString());
+            Customer sessionCustomer = (Customer) http.getAttribute("customersession");//Llamo objeto de session para traer objeto de bbdd
+            Customer customer = customerService.findById(sessionCustomer.getId());//Hibernate vuelve a abrir la sesión y puede cargar todas las relaciones
+
+            customer.getPurchaseHistory().sort(Comparator.comparing(Sale :: getSaleDate, Comparator.nullsLast(Comparator.reverseOrder())));//ordena purchaseHistory antes de enviarlo a la vista
+            
             model.addAttribute("customer", customer);
             return "/customer/profile";
         } catch (Exception e) {
@@ -113,10 +130,10 @@ public class CustomerController {
         }
     }
 
-    @PostMapping("edit-profile")
-    public String editPost(@ModelAttribute Customer customer, @RequestParam("photoFile") MultipartFile file, @RequestParam(value = "newPassword", required =false)String newPassword, RedirectAttributes attr, HttpSession http){
+    @PostMapping("/edit-profile")
+    public String editPost(@ModelAttribute Customer customer, @RequestParam("photoFile") MultipartFile file, @RequestParam(value = "newPassword", required = false) String newPassword, RedirectAttributes attr, HttpSession http) {
         try {
-            
+
             Customer actualizado = customerService.update(customer, file, newPassword);//La foto y Contraseña los gestiono separado de los demas atributos
             http.setAttribute("customersession", actualizado);//actualiza la sessión asi me aparece el customer actualizado
             attr.addFlashAttribute("success", "Edit del Perfil EXITOSO ");
@@ -143,5 +160,164 @@ public class CustomerController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+    @GetMapping("/buyBook")//tengo que ver como añado compras "sale" al purchased history
+    public String buyGet(@RequestParam String id, ModelMap model, HttpSession http) {
+        try {
+            Customer sessionCustomer = (Customer) http.getAttribute("customersession");
+            Customer customer = customerService.findById(sessionCustomer.getId());
+            
+            Book book = bookService.findById(id);
+            
+            CartItem item = new CartItem();
+            
+            item.setBook(book);
+            item.setCustomer(customer);
+            item.setQuantity(1);
+            
+            List<CartItem> items = new ArrayList<>();//lista temporal para comprar solo un libro, no toca BBDD
+            items.add(item);
+            
+            model.addAttribute("customer", customer);
+            model.addAttribute("cart", items);
+            model.addAttribute("totalAmount", book.getPrice());
+            model.addAttribute("buyNow", true);
+            System.out.println(book.toString());
+
+            
+            /*if(customer.getBalance() == null){
+                customer.setBalance(0.0);
+            }*/
+            
+            if (customer.getBalance() == null || customer.getBalance() <= 0 || customer.getBalance() < book.getPrice()) {
+                System.out.println(customer.getBalance());
+                customer.setBalance(100000.0);//cien mil
+                System.out.println("RECARGA AUTOMATICA DE SALDO DE CUSTOMER");
+            }
+            
+            return "customer/checkout";
+        } catch (Exception e) {
+            model.put("error", e.getMessage());
+            return "redirect:/book/vieww?id="+ id;
+        }
+    }
+
+    @PostMapping("/buyBook")
+    public String buyPost(@RequestParam String id, @RequestParam Integer quantity, RedirectAttributes attr, HttpSession http) {
+        try {
+            Customer sessionCustomer = (Customer) http.getAttribute("customersession");
+            Customer customer = customerService.findById(sessionCustomer.getId());
+            
+            System.out.println("ENTRO AL POST ");
+            customerService.buyBook(customer, id, quantity);
+            
+            attr.addFlashAttribute("success", "Compra realizada correctamente");
+            System.out.println("VOLVIO DEL SERVICIO, DE NUEVO EN EL POST");
+
+            return "redirect:/customer/profile";
+        } catch (Exception e) {
+            System.out.println("ERROR");
+            e.printStackTrace();
+            attr.addFlashAttribute("error", e.getMessage());
+            return "redirect:/customer/cart";
+        }
+    }
+
+    @GetMapping("/cart")
+    public String viewCart(ModelMap model, HttpSession http) throws Exception {
+        
+        System.out.println("ENTRO A LA VISTA DEL CARRITO");
+        Customer sessionCustomer = (Customer) http.getAttribute("customersession");
+        System.out.println("###  SESSION CUSTOMER : "+ sessionCustomer);
+        
+        Customer customer = customerService.findById(sessionCustomer.getId());
+        System.out.println("customer ID: "+ customer.getId());
+        System.out.println("---###--- CUSTOMER BD : "+ customer);
+        
+        List<CartItem> cart = cartItemService.getCart(customer);
+        System.out.println("___### CART : "+ cart);
+        System.out.println("CUSTOMER BALANCE : "+ customer.getBalance());
+        
+        Double total = cartItemService.getTotal(customer);
+
+        model.addAttribute("customer", customer);//seteo los atributos al modelo
+        model.addAttribute("cart", cart);
+        model.addAttribute("totalAmount", total);
+        model.addAttribute("buyNow", false);
+        System.out.println("CUSTOMER EN EL MODEL : "+ model.get("customer"));
+        System.out.println("================================================");
+        return "customer/checkout";//La vista para ver el carrito y la del checkout son las mismas (checkout)
+    }
+
+    @PostMapping("/cart/add")//El Carrito va a estar guardado en la sesion del usuario(HttpSession atributo llamado cart, que contiene List<Book>)
+    public String addToCart(@RequestParam String id, HttpSession http, RedirectAttributes attr) {
+        try {
+            Customer sessionCustomer = (Customer) http.getAttribute("customersession");
+            Customer customer = customerService.findById(sessionCustomer.getId());
+            
+            System.out.println("---###---   "+ customer.toString());
+            
+            cartItemService.addBook(customer, id);
+            
+            attr.addFlashAttribute("success", "Libro agregado al carrito");
+            System.out.println("Libro agregado al carrito");
+
+            return "redirect:/customer/cart";
+            //return "redirect:/book/vieww?id=" + id;
+        } catch (Exception e) {
+            attr.addFlashAttribute("error", e.getMessage());
+            return "redirect:/book";
+        }
+    }
+
+    @PostMapping("/cart/remove")
+    public String removeBook(@RequestParam String id, HttpSession http, RedirectAttributes attr) {
+        try {
+            Customer sessionCustomer = (Customer) http.getAttribute("customersession");
+            Customer customer = customerService.findById(sessionCustomer.getId());
+            
+            System.out.println("---###--- CUSTOMER : "+ customer);
+            
+            cartItemService.removeBook(customer, id);
+            System.out.println("---###--- REMOVE OK");
+            
+            return "redirect:/customer/cart";
+        } catch (Exception e) {
+            System.out.println("!!!!!!!! ERROR EN REMOVE !!!!!!!!");
+            e.printStackTrace();
+            attr.addFlashAttribute("error", e.getMessage());
+            return "redirect:/customer/cart";
+        }
+    }
+
+    @PostMapping("/cart/clear")
+    public String clearCart(HttpSession http, RedirectAttributes attr) throws Exception {
+
+        Customer sessionCustomer = (Customer) http.getAttribute("customersession");
+        Customer customer = customerService.findById(sessionCustomer.getId());
+        
+        cartItemService.clearCart(customer);
+
+        attr.addFlashAttribute("success", "Carrito vaciado correctamente");
+
+        return "redirect:/customer/cart";
+    }
     
+    @PostMapping("/cart/checkout")
+    public String checkoutCart(HttpSession http, RedirectAttributes attr) throws Exception{
+        
+        System.out.println("ENTRO AL CHECKOUT DE CARRITO");
+        Customer sessionCustomer = (Customer) http.getAttribute("customersession");
+        Customer customer = customerService.findById(sessionCustomer.getId());
+        
+        List<CartItem> items = cartItemService.getCart(customer);
+        
+        customerService.buyBooks(customer, items);
+        
+        attr.addFlashAttribute("success", "Compra realizada");
+        
+        return "redirect:/customer/profile";
+    }
+
+    //@GetMapping("/purchase-history")
 }

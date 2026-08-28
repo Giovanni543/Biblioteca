@@ -2,6 +2,8 @@ package com.bibloteca.beta.entities;
 
 import com.bibloteca.beta.enums.Role;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,6 +13,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -50,6 +53,8 @@ public class Customer implements Serializable {
     private Double balance;//el balance dejo que lo ingrese el propio customer o se hace directamente en el workbench de la bbdd?
     //agregarle el atributo rango
     //lista de libros comprados (historial)
+    @OneToMany(mappedBy = "customer")
+    private List<Sale> purchaseHistory = new ArrayList<>();
     
     @Override
     public String toString() {
@@ -57,8 +62,9 @@ public class Customer implements Serializable {
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
-                ", role=" + role +
+                ", role=" + role + '\'' +
+                ", balance=" + balance + '\'' +
                 // ⚠️ No ponemos password ni photo
-                '}';
+                "}";
     }
 }

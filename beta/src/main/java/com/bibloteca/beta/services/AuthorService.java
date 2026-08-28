@@ -126,8 +126,8 @@ public class AuthorService implements UserDetailsService {
         
         bookService.save(book);
         System.out.println("Servicio de author " + book.toString());
-        System.out.println("lista: "+ authorDB.getListBook());
-        List<Book> books = authorDB.getListBook();
+        System.out.println("lista: "+ authorDB.getBookList());
+        List<Book> books = authorDB.getBookList();
 
         System.out.println("qqq");
         books.add(book);
@@ -140,7 +140,7 @@ public class AuthorService implements UserDetailsService {
             System.out.println("iteración número " + i);
             i++;
         }
-        authorDB.setListBook(books);
+        authorDB.setBookList(books);
         authorRepository.save(authorDB);
 
     }

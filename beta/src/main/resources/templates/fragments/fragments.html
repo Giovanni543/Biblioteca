@@ -49,14 +49,15 @@
                                          th:src="@{/author/photo/{id}(id=${session.authorsession.photo.id})}"
                                          class="rounded-circle" width="50" height="50">
                                 </th:block>
-<!--                                <img th:if="${session.customersession.photo != null and session.customersession.photo != null}"
-                                     th:src="@{/customer/photo/{id}(id=${session.customersession.photo.id})}" alt="Foto de perfil" class="rounded-circle" width="50" height="50">
-                                <img th:if="${session.authorsession.photo != null and session.authorsession.photo != null}"
-                                     th:src="@{/author/photo/{id}(id=${session.authorsession.photo.id})}" alt="Foto de perfil" class="rounded-circle" width="50" height="50">-->
+                                <!--                                <img th:if="${session.customersession.photo != null and session.customersession.photo != null}"
+                                                                     th:src="@{/customer/photo/{id}(id=${session.customersession.photo.id})}" alt="Foto de perfil" class="rounded-circle" width="50" height="50">
+                                                                <img th:if="${session.authorsession.photo != null and session.authorsession.photo != null}"
+                                                                     th:src="@{/author/photo/{id}(id=${session.authorsession.photo.id})}" alt="Foto de perfil" class="rounded-circle" width="50" height="50">-->
                             </a>
                             <ul th:if="${session.customersession != null}" class="dropdown-menu text-small" aria-labelledby="dropdownUser1">
                                 <li><a class="dropdown-item" th:href="@{/customer/profile}">Perfil</a></li>
                                 <li><a class="dropdown-item" th:href="@{/customer/edit-profile}">Editar perfil</a></li>
+                                <li><a class="dropdown-item" th:href="@{/customer/cart}">Ver carrito</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" th:href="@{/logout}">Cerrar Sesión</a></li>
                             </ul>

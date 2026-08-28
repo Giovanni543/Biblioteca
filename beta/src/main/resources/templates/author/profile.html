@@ -1,53 +1,285 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <head>
-        <title>Profile</title>
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" 
-              rel="stylesheet" 
-              integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" 
+        <title>Perfil</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+              rel="stylesheet"
+              integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3"
               crossorigin="anonymous">
+        <style>
+            .profile-photo {
+                width: 180px;
+                height: 180px;
+                object-fit: cover;
+            }
+            .sale-card {
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+            .sale-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .10) !important;
+            }
+            .hidden-sale {
+                display: none;
+            }
+            .book-row {
+                border-bottom: 1px solid #eeeeee;
+                padding: 10px 0;
+            }
+            .book-row:last-child {
+                border-bottom: none;
+            }
+        </style>
     </head>
     <body>
         <nav th:replace="fragments/fragments::navbar"></nav>
-        <h1>Perfil de Autor</h1>
-        <div class="row">
-            <div class="col-md-8">
-                <form class="form container m-5 justify-content-between float-left">
-                    <div class="mb-3">
-                        <label for="InputEmail" class="form-label">Direccion de mail:</label>
-                        <input type="email" readonly class="form-control" th:value="${author.email}" id="exampleInputEmail1" >
-                    </div>
-                    <div class="mb-3">
-                        <label for="InputName" class="form-label">Nombre:</label>
-                        <input type="text" readonly class="form-control" th:value="${author.name}" id="Name">
-                    </div>
-                    <div class="mb-3">
-                        <label for="InputLastName" class="form-label">Apellido:</label>
-                        <input type="text" readonly class="form-control" th:value="${author.lastName}" id="Lastname">
-                    </div>
-                    <div class="mb-3">
-                        <label for="InputDNI" class="form-label">DNI:</label>
-                        <input type="text" readonly class="form-control" th:value="${author.dni}" id="DNI">
-                    </div>
-                    <div class="mb-3">
-                        <label for="InputRole" class="form-label">Rol:</label>
-                        <input type="Role" readonly class="form-control" th:value="${author.role}" id="Password">
-                    </div>
-                    <a href="/author/edit-profile" class="btn btn-outline-success my-sm-0">Editar Perfil</a>
-
-                    <p th:if="${error != null}" th:text="${error}" style="color : red;"></p>
-                </form>
-            </div>
-            <div class="col-md-4 d-flex justify-content-center align-items-start" th:if="${author.photo != null}">
-                <img th:src="@{/author/photo/{id}(id=${author.photo.id})}" alt="Foto de perfil" class="rounded-circle shadow" width="200" height="200"/>
+        <div class="container mt-5 mb-5">
+            <div class="text-center mb-4">
+                <h1>Perfil de Author</h1>
+                <p class="text-muted">
+                    Información personal e historial de publicaciones
+                </p>
             </div>
 
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" 
-                    integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" 
-                    crossorigin="anonymous">
-            </script>
+            <!-- DATOS DEL AUTHOR -->
+
+            <div class="card shadow border-0 mb-4">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        Datos personales
+                    </h4>
+                </div>
+                <div class="card-body">
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">
+                                Nombre
+                            </label>
+                            <input type="text"
+                                   readonly
+                                   class="form-control"
+                                   th:value="${author.name}">
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">
+                                Apellido
+                            </label>
+                            <input type="text"
+                                   readonly
+                                   class="form-control"
+                                   th:value="${author.lastName}">
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">
+                                DNI
+                            </label>
+                            <input type="text"
+                                   readonly
+                                   class="form-control"
+                                   th:value="${author.dni}">
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">
+                                Dirección de mail
+                            </label>
+                            <input type="email"
+                                   readonly
+                                   class="form-control"
+                                   th:value="${author.email}">
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">
+                                Rol
+                            </label>
+                            <input type="text"
+                                   readonly
+                                   class="form-control"
+                                   th:value="${author.role}">
+                        </div>
+
+                    <!-- BOTÓN EDITAR -->
+                    <div class="text-end mt-2">
+                        <a th:href="@{/author/edit-profile}"
+                           class="btn btn-outline-success">
+                            Editar Perfil
+                        </a>
+                    </div>
+                    <p th:if="${error != null}"
+                       th:text="${error}"
+                       class="text-danger mt-3">
+                    </p>
+                </div>
+            </div>
+
+            <div class="row">
+
+                <!-- FOTO DE PERFIL -->
+                <!-- ================================================= -->
+
+                <div class="col-lg-3 mb-4">
+                    <div class="card shadow border-0">
+                        <div class="card-body text-center">
+                            <h5 class="mb-4">
+                                Mi perfil
+                            </h5>
+                            <!-- FOTO EXISTENTE -->
+                            <img th:if="${author.photo != null}"
+                                 th:src="@{/author/photo/{id}(id=${author.photo.id})}"
+                                 class="rounded-circle img-fluid shadow profile-photo"
+                                 alt="Foto de perfil">
+
+                            <!-- FOTO POR DEFECTO -->
+                            <img th:if="${author.photo == null}"
+                                 src="https://via.placeholder.com/180"
+                                 class="rounded-circle img-fluid shadow profile-photo"
+                                 alt="Foto de perfil">
+                            <h4 class="mt-3"
+                                th:text="${author.name}">
+                                Nombre
+                            </h4>
+                            <p class="text-muted mb-0"
+                               th:text="${author.email}">
+                                email
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- HISTORIAL DE PUBLICACIÓN -->
+                <!-- ================================================= -->
+                <div class="col-lg-9">
+                    <div class="card shadow border-0">
+                        <div class="card-header bg-success text-white">
+                            <h4 class="mb-0">
+                                Historial de publicaciones
+                            </h4>
+                        </div>
+                        <div class="card-body">
+
+                            <!-- SIN LIBROS PUBLICADOS -->
+                            <!-- ===================================== -->
+                            <div th:if="${author.bookList.empty}"
+                                 class="text-center text-muted py-4">
+                                <h5>
+                                    Todavía no realizaste ninguna publicación.
+                                </h5>
+                                <p class="mb-0">
+                                    Cuando realices una publicación aparecerá aquí.
+                                </p>
+                            </div>
+
+                            <!-- LIBROS PUBLICADOS -->
+                            <!-- ===================================== -->
+                            <div th:each="book, stat : ${author.bookList}"
+                                 class="card sale-card mb-3 border"
+                                 th:classappend="${stat.index >= 3} ? ' hidden-sale' : ''">
+                                <div class="card-body">
+                                    <!-- CABECERA DE LA PUBLICACIÓN -->
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h5 class="mb-1">
+                                                Publicación:
+                                                <span class="text-muted"
+                                                      th:text="'#' + ${book.id}">
+                                                </span>
+                                            </h5>
+                                            <small class="text-muted">
+                                                Fecha:
+                                                <span th:text="${book.publicationDate}">
+                                                </span>
+                                            </small>
+                                        </div>
+                                        <!-- TOTAL -->
+                                        <div class="text-end">
+                                            <strong class=" d-block">
+                                                Precio
+                                            </strong>
+                                            <strong class="text-success fs-5">
+                                                $
+                                                <span th:text="${book.price}">
+                                                </span>
+                                            </strong>
+                                        </div>
+                                    </div>
+                                    <hr>
+
+                                    <!-- LIBROS DE LA VENTA -->
+                                    <!-- ================================= -->
+                                    <div th:each="item : ${book}"
+                                         class="book-row">
+                                        <div class="row align-items-center">
+                                            <!-- NOMBRE -->
+                                            <div class="col-md-7">
+                                                <strong th:text="${item.name}">
+                                                    Nombre del libro
+                                                </strong>
+                                            </div>
+                                            <!-- CANTIDAD -->
+                                            <div class="col-md-2 text-center">
+                                                <span class="text-muted">
+                                                    Categoría :
+                                                </span>
+                                                <strong>
+                                                    <span th:text="${item.category}">
+                                                    </span>
+                                                </strong>
+                                            </div>
+
+                                            <!-- PRECIO -->
+                                            <div class="col-md-3 text-end">
+                                                $
+                                                <span th:text="${item.price}">
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- BOTÓN MOSTRAR MÁS -->
+
+                            <div th:if="${author.bookList.size() > 3}"
+                                 class="text-center mt-4">
+                                <button type="button"
+                                        id="showMoreButton"
+                                        class="btn btn-outline-success">
+                                    Mostrar más
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- JAVASCRIPT -->
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const button = document.getElementById("showMoreButton");
+                if (button) {
+                    button.addEventListener("click", function () {
+                        const hiddenSales =
+                                document.querySelectorAll(".hidden-sale");
+                        hiddenSales.forEach(function (sale) {
+                            sale.style.display = "block";
+                        });
+                        button.style.display = "none";
+                    });
+                }
+            });
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+                integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+                crossorigin="anonymous">
+        </script>
     </body>
 </html>

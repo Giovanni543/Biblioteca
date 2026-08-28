@@ -1,13 +1,19 @@
 package com.bibloteca.beta.services;
 
+import com.bibloteca.beta.entities.Book;
+import com.bibloteca.beta.entities.CartItem;
 import com.bibloteca.beta.entities.Customer;
 import com.bibloteca.beta.entities.Photo;
+import com.bibloteca.beta.entities.Sale;
 import com.bibloteca.beta.enums.Role;
 import java.util.List;
 import java.util.ArrayList;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.bibloteca.beta.repositories.CustomerRepository;
+import com.bibloteca.beta.repositories.SaleRepository;
+import java.time.LocalDate;
+import java.util.Optional;
 import javax.servlet.http.HttpSession;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -27,12 +33,17 @@ public class CustomerService implements UserDetailsService {
 
     private CustomerRepository customerRepository;
     private PhotoService photoService;
+    private BookService bookService;
+    private SaleRepository saleRepository;
     private final PasswordEncoder passwordEncoder;
+    //private SaleRepository
 
     @Autowired//la inyeccion de dependencia en los constructores nos permite hacer tessting despues de manera mas sencilla
-    public CustomerService(CustomerRepository customerRepository, PhotoService photoService, PasswordEncoder passwordEncoder) {
+    public CustomerService(CustomerRepository customerRepository, PhotoService photoService, BookService bookService, SaleRepository saleRepository, PasswordEncoder passwordEncoder) {
         this.customerRepository = customerRepository;
         this.photoService = photoService;
+        this.bookService = bookService;
+        this.saleRepository = saleRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -41,7 +52,7 @@ public class CustomerService implements UserDetailsService {
 
         activateIfNew(customer);
         validate(customer);
-        
+
         System.out.println("paso la validacion y el activado");
 
         String passwordEncripted = passwordEncoder.encode(customer.getPassword());
@@ -60,7 +71,7 @@ public class CustomerService implements UserDetailsService {
         System.out.println(principal.toString());
         System.out.println(customer.getPassword());
         System.out.println(newPassword);
-        
+
         principal.setName(customer.getName()); // total de campos que se permiten modificar: 6
         principal.setLastName(customer.getLastName());
         principal.setEmail(customer.getEmail());
@@ -91,7 +102,7 @@ public class CustomerService implements UserDetailsService {
 
     @Transactional
     public Customer findById(String id) throws Exception {
-        Customer customer = customerRepository.getById(id);//findById
+        Customer customer = customerRepository.getById(id);
         if (customer == null) {
             throw new Exception("No se encontro al usuario con ese Id");
         }
@@ -131,7 +142,7 @@ public class CustomerService implements UserDetailsService {
         if (customer.getEmail() == null || customer.getEmail().isEmpty() || customer.getEmail().equals(" ") || customer.getEmail().length() < 8) {
             throw new Exception("El email ingresado es invalido");
         }
-        if ( customer.getPassword() == null || customer.getPassword().isEmpty() || customer.getPassword().equals(" ") || (customer.getPassword().length() < 8)) {
+        if (customer.getPassword() == null || customer.getPassword().isEmpty() || customer.getPassword().equals(" ") || (customer.getPassword().length() < 8)) {
             throw new Exception("La contraseña ingresada es invalida");
         }//si el dni ingresado es menor a 10 millones o mayor a 90 millones se tiene como valor erroneo
         if (customer.getDni() < 10000000 || customer.getDni() > 90000000 || customer.getDni() == null || customer.getDni().toString().isEmpty() || customer.getDni().toString().equals(" ")) {
@@ -154,12 +165,69 @@ public class CustomerService implements UserDetailsService {
         permissions.add(rolePermissions);
 
         ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
-
         HttpSession session = attr.getRequest().getSession(true);
-
         session.setAttribute("customersession", customer);
 
         return new User(customer.getEmail(), customer.getPassword(), permissions);
     }
 
+    @Transactional
+    public void buyBooks(Customer customer, List<CartItem> items) throws Exception {
+        //List<Book> books = bookService.findAllById(bookIds);
+        if (items == null || items.isEmpty()) {
+            throw new Exception("No se seleccionaron libros");
+        }
+        Double total = 0.0;
+
+        for (CartItem item : items) {
+            Book book = item.getBook();
+            
+            if(book.getStock() < item.getQuantity()){
+                throw new Exception("Stock insuficiente para: "+ book.getName());
+            }
+            total += book.getPrice() * item.getQuantity();
+            
+        }
+        
+        if (customer.getBalance() < total) {
+            throw new Exception("Saldo insuficiente");
+        }
+        
+        Sale sale = new Sale();
+
+        sale.setCustomer(customer);
+        sale.setCartItems(items);
+        sale.setSaleDate(LocalDate.now());
+        sale.setTotalAmount(total);
+
+        customer.setBalance(customer.getBalance() - total);
+
+        for (CartItem item : items) {//resta unidades disponibles (stock)
+            Book book = item.getBook();
+            book.setStock(book.getStock() - item.getQuantity());
+            bookService.save(book);
+        }
+        saleRepository.save(sale);
+        System.out.println("Antes de agregar venta");
+        //customer.getPurchaseHistory().add(sale);
+        System.out.println("despues de agregar venta");
+        customerRepository.save(customer);
+    }
+    
+    @Transactional
+    public void buyBook(Customer customer, String id, Integer quantity)throws Exception{
+        
+        Book book = bookService.findById(id);
+        
+        CartItem item = new CartItem();
+        
+        item.setBook(book);
+        item.setCustomer(customer);
+        item.setQuantity(quantity);
+        
+        List<CartItem> items = new ArrayList<>();
+        items.add(item);
+        
+        buyBooks(customer, items);
+    }
 }

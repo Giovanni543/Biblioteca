@@ -24,7 +24,7 @@ import javax.persistence.OneToOne;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Author implements Serializable {//implements serializable??
+public class Author implements Serializable {
 
     @Id
     @GeneratedValue(generator = "uuid")
@@ -48,7 +48,7 @@ public class Author implements Serializable {//implements serializable??
     private Boolean alive;
 
     @OneToMany(mappedBy = "author")
-    private List<Book> listBook = new ArrayList<>();
+    private List<Book> bookList = new ArrayList<>();//bookList
 
     @Override
     public String toString() {

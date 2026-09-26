@@ -2,10 +2,13 @@ package com.bibloteca.beta.services;
 
 import com.bibloteca.beta.entities.Book;
 import com.bibloteca.beta.repositories.BookRepository;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,9 +24,12 @@ public class BookService {
     
     @Transactional(value = Transactional.TxType.REQUIRED, rollbackOn = Exception.class)
     public void save (Book book)throws Exception{
-        //Author author = authorService.findOrCreate(book.getAuthor().getName(), book.getAuthor().getLastName());
-        //book.setAuthor(author);
+
         System.out.println("Entro al servicio de libro");
+        if(book.getPublicationDate() == null){
+            book.setPublicationDate(LocalDateTime.now());
+            System.out.println("Fecha añadida");
+        }
         
         validate(book);
         activateDeactivate(book);
@@ -40,7 +46,6 @@ public class BookService {
             book.setActive(Boolean.FALSE);
         }
     }
-
     
     @Transactional
     public Book findById(String id)throws Exception{
@@ -49,7 +54,12 @@ public class BookService {
     
     @Transactional
     public List<Book> findByName(String name)throws Exception{
-        List<Book> books = bookRepository.SearchByName(name);
+        if(name == null || name.trim().isEmpty()){
+            return bookRepository.findAll();
+        }
+        
+        List<Book> books = bookRepository.findByNameContainingIgnoreCase(name);
+        
         if(books == null){
             throw new Exception("No se encontro a ningún libro con ese nombre");
         }
@@ -71,7 +81,7 @@ public class BookService {
     }
     
     public void validate(Book book)throws Exception{
-        if(book.getName() == null || book.getName().isEmpty() || book.getName().length() < 5 || book.getName().equals(" ")){//poner en la vista las condiciones minimas para publicar un libro
+        if(book.getName() == null || book.getName().isEmpty() || book.getName().length() < 4 || book.getName().equals(" ")){//poner en la vista las condiciones minimas para publicar un libro
             throw new Exception("El nombre ingresado es inválido");//poner obligatorio la foto del libro tmb
         }
         if(book.getAuthor() == null){
@@ -80,7 +90,7 @@ public class BookService {
         if(book.getCategory() == null || book.getCategory().isEmpty() || book.getCategory().length() < 5 || book.getCategory().equals(" ")){
             throw new Exception("Categoria ingresada es inválida");
         }
-        if(book.getStock() == null || book.getStock() < 5){
+        if(book.getStock() == null){
             throw new Exception("El número de stock ingresado es inválido");
         }
         if(book.getPages() == null || book.getPages() < 10){
@@ -91,4 +101,28 @@ public class BookService {
         }
         System.out.println("Paso validación");
     }
+    
+    @Transactional
+    public List<Book>getBooksForIndex(){
+        
+        int maxBooks = 8;
+        Pageable pageable =PageRequest.of(0, maxBooks);
+        
+        List<Book> bestSelling = bookRepository.findBestSellingBooks(pageable);//Los libros mas vendidos
+        
+        if(bestSelling.size() >= maxBooks){//si estan los 8, retorno
+            System.out.println("Se encontraron los 8 libros mas vendidos ");
+            return bestSelling;
+        }
+        
+        int remaining = maxBooks - bestSelling.size();
+        
+        Pageable remainingPageable = PageRequest.of(0, remaining);//Si faltan para llegar a 8, completo con libros publicados recientemente
+        
+        List <Book> latest = bookRepository.findLatestBooksExcluding(bestSelling, remainingPageable);
+        
+        bestSelling.addAll(latest);
+        return bestSelling;
+    }    
+    
 }

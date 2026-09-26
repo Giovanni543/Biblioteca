@@ -5,6 +5,7 @@ import com.bibloteca.beta.entities.CartItem;
 import com.bibloteca.beta.entities.Customer;
 import com.bibloteca.beta.entities.Photo;
 import com.bibloteca.beta.entities.Sale;
+import com.bibloteca.beta.entities.SaleItem;
 import com.bibloteca.beta.enums.Role;
 import java.util.List;
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.bibloteca.beta.repositories.CustomerRepository;
 import com.bibloteca.beta.repositories.SaleRepository;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import javax.servlet.http.HttpSession;
 import org.springframework.security.core.GrantedAuthority;
@@ -35,15 +36,17 @@ public class CustomerService implements UserDetailsService {
     private PhotoService photoService;
     private BookService bookService;
     private SaleRepository saleRepository;
+    private CartItemService cartItemService;
     private final PasswordEncoder passwordEncoder;
     //private SaleRepository
 
     @Autowired//la inyeccion de dependencia en los constructores nos permite hacer tessting despues de manera mas sencilla
-    public CustomerService(CustomerRepository customerRepository, PhotoService photoService, BookService bookService, SaleRepository saleRepository, PasswordEncoder passwordEncoder) {
+    public CustomerService(CustomerRepository customerRepository, PhotoService photoService, BookService bookService, SaleRepository saleRepository, CartItemService cartItemService, PasswordEncoder passwordEncoder) {
         this.customerRepository = customerRepository;
         this.photoService = photoService;
         this.bookService = bookService;
         this.saleRepository = saleRepository;
+        this.cartItemService = cartItemService;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -92,6 +95,18 @@ public class CustomerService implements UserDetailsService {
         System.out.println("kkk");
         return customerRepository.save(principal);
     }
+    
+    @Transactional
+    public Customer addBalance(Customer customer, Double amount) throws Exception{
+        Customer principal = customerRepository.findById(customer.getId()).orElseThrow(() -> new Exception("No se encontró el usuario"));
+        
+        if(principal.getBalance() == null){
+            principal.setBalance(0.0);
+        }
+        
+        principal.setBalance(principal.getBalance() + amount);
+        return customerRepository.save(principal);
+    }
 
     private void activateIfNew(Customer customer) throws Exception {
         if (customer.getActive() == null || customer.getActive().equals(false)) {
@@ -102,11 +117,10 @@ public class CustomerService implements UserDetailsService {
 
     @Transactional
     public Customer findById(String id) throws Exception {
-        Customer customer = customerRepository.getById(id);
-        if (customer == null) {
-            throw new Exception("No se encontro al usuario con ese Id");
-        }
-        return customer;
+            return customerRepository.findById(id)
+            .orElseThrow(() ->
+                new Exception("No se encontró al usuario con ese Id")
+            );
     }
 
     @Transactional
@@ -173,13 +187,13 @@ public class CustomerService implements UserDetailsService {
 
     @Transactional
     public void buyBooks(Customer customer, List<CartItem> items) throws Exception {
-        //List<Book> books = bookService.findAllById(bookIds);
+        
         if (items == null || items.isEmpty()) {
             throw new Exception("No se seleccionaron libros");
         }
         Double total = 0.0;
 
-        for (CartItem item : items) {
+        for (CartItem item : items) {//Valida si hay stock
             Book book = item.getBook();
             
             if(book.getStock() < item.getQuantity()){
@@ -189,16 +203,28 @@ public class CustomerService implements UserDetailsService {
             
         }
         
-        if (customer.getBalance() < total) {
+        if (customer.getBalance() < total) {//Valido el saldo
             throw new Exception("Saldo insuficiente");
         }
         
         Sale sale = new Sale();
 
         sale.setCustomer(customer);
-        sale.setCartItems(items);
-        sale.setSaleDate(LocalDate.now());
+        sale.setSaleDate(LocalDateTime.now());
+        System.out.println("Fecha y hora en la que se va a guardar :"+ sale.getSaleDate());
         sale.setTotalAmount(total);
+        
+        for(CartItem item : items){
+            
+            SaleItem saleItem = new SaleItem();
+            
+            saleItem.setBook(item.getBook());
+            saleItem.setQuantity(item.getQuantity());
+            saleItem.setPrice(item.getBook().getPrice());
+            saleItem.setSale(sale);
+            
+            sale.getSaleItems().add(saleItem);
+        }
 
         customer.setBalance(customer.getBalance() - total);
 
@@ -207,11 +233,12 @@ public class CustomerService implements UserDetailsService {
             book.setStock(book.getStock() - item.getQuantity());
             bookService.save(book);
         }
-        saleRepository.save(sale);
+        
         System.out.println("Antes de agregar venta");
-        //customer.getPurchaseHistory().add(sale);
-        System.out.println("despues de agregar venta");
+        saleRepository.save(sale);
         customerRepository.save(customer);
+        
+        System.out.println("despues de agregar venta");
     }
     
     @Transactional

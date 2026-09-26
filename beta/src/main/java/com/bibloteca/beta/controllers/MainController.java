@@ -1,7 +1,10 @@
 package com.bibloteca.beta.controllers;
 
+import com.bibloteca.beta.entities.Book;
 import com.bibloteca.beta.entities.Customer;
+import com.bibloteca.beta.services.BookService;
 import com.bibloteca.beta.services.CustomerService;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -13,9 +16,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/")
 public class MainController {
 
+    private BookService bookService;
+    
+    @Autowired
+    public MainController(BookService bookService){
+        this.bookService = bookService;
+    }
 
     @GetMapping
-    public String index() {
+    public String index(ModelMap model) {
+        List<Book> books = bookService.getBooksForIndex();
+        model.addAttribute("books", books);
+        
         return "index.html";
     }
 

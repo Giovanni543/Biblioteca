@@ -48,7 +48,7 @@ public class Author implements Serializable {
     private Boolean alive;
 
     @OneToMany(mappedBy = "author")
-    private List<Book> bookList = new ArrayList<>();//bookList
+    private List<Book> bookList = new ArrayList<>();
 
     @Override
     public String toString() {

@@ -19,127 +19,147 @@
                         Confirmar compra
                     </h3>
                 </div> <!-- La vista para ver el carrito y la del checkout son las mismas -->
-                <div class="card-body">
-                    <div class="row">
-                        <!-- Productos -->
-                        <div class="col-lg-7">
-                            <div class="product-card mb-3" th:each="item : ${cart}">
-                                <div class="row align-items-center">
-                                    <div class="col-md-3 text-center">
-                                        <img th:if="${item.book.photo != null}"
-                                             th:src="@{/book/photo/{id}(id=${item.book.photo.id})}"
-                                             class="img-fluid rounded shadow">
+                <div th:if="${cart != null and !cart.isEmpty()}">
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Productos -->
+                            <div class="col-lg-7">
+                                <div class="product-card mb-3" th:each="item : ${cart}">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-3 text-center">
+                                            <img th:if="${item.book.photo != null}"
+                                                 th:src="@{/book/photo/{id}(id=${item.book.photo.id})}"
+                                                 class="img-fluid rounded shadow">
 
-                                        <img th:unless="${item.book.photo != null}"
-                                             src="https://via.placeholder.com/200x300">
+                                            <img th:unless="${item.book.photo != null}"
+                                                 src="https://via.placeholder.com/200x300">
+                                        </div>
+                                        <div class="col-md-9">
+
+                                            <h4 th:text="${item.book.name}"></h4>
+                                            <p class="text-muted mb-1">
+                                                Autor:
+                                                <span th:text="${item.book.author.name}"></span>
+                                            </p>
+                                            <p class="mb-1">
+                                                Categoría:
+                                                <span th:text="${item.book.category}"></span>
+                                            </p>
+                                            <p>
+                                                Cantidad:
+                                                <span th:text="${item.quantity}"></span>
+                                            </p>
+                                            <h5 class="text-success">
+                                                $
+                                                <span th:text="${item.book.price}"></span>
+                                            </h5>
+                                        </div>
                                     </div>
-                                    <div class="col-md-9">
+                                    <div class="d-flex align-items-center justify-content-center gap-2">
+                                        <form th:action="@{/customer/cart/remove}" method="post" class="m-0">
+                                            <input type="hidden" name="id" th:value="${item.book.id}">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                                -
+                                            </button>
+                                        </form>
+                                        <span class="fw-bold mx-3" th:text="${item.quantity}">
+                                            1
+                                        </span>
+                                        <form th:action="@{/customer/cart/add}" method="post" class="m-0">
+                                            <input type="hidden" name="id" th:value="${item.book.id}">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                                +
+                                            </button>
+                                        </form>
+                                    </div>
+                                    <hr class="d-flex justify-content-between">
+                                </div>
+                                <form th:unless="${buyNow}"
+                                      th:action="@{/customer/cart/clear}"
+                                      method="post">
 
-                                        <h4 th:text="${item.book.name}"></h4>
-                                        <p class="text-muted mb-1">
-                                            Autor:
-                                            <span th:text="${item.book.author.name}"></span>
-                                        </p>
-                                        <p class="mb-1">
-                                            Categoría:
-                                            <span th:text="${item.book.category}"></span>
-                                        </p>
-                                        <p>
-                                            Cantidad:
-                                            <span th:text="${item.quantity}"></span>
-                                        </p>
-                                        <h5 class="text-success">
+                                    <button type="submit"
+                                            class="btn btn-outline-danger"
+                                            onclick="return confirm('¿Seguro que querés vaciar el carrito?');">
+
+                                        Vaciar carrito
+                                    </button>
+                                </form>
+                                <div class="summary-card">
+                                    <h4 class="mb-4">
+                                        Resumen del pago
+                                    </h4>
+                                    <div class="d-flex justify-content-between">
+                                        <span>Saldo disponible</span>
+                                        <strong>
                                             $
-                                            <span th:text="${item.book.price}"></span>
-                                        </h5>
+                                            <span th:text="${customer.balance}"></span>
+                                        </strong>
                                     </div>
-                                </div>
-                                <div class="d-flex align-items-center justify-content-center gap-2">
-                                    <form th:action="@{/customer/cart/remove}" method="post" class="m-0">
-                                        <input type="hidden" name="id" th:value="${item.book.id}">
-                                        <button type="submit" class="btn btn-outline-danger btn-sm">
-                                            -
-                                        </button>
-                                    </form>
-                                    <span class="fw-bold mx-3" th:text="${item.quantity}">
-                                        1
-                                    </span>
-                                    <form th:action="@{/customer/cart/add}" method="post" class="m-0">
-                                        <input type="hidden" name="id" th:value="${item.book.id}">
-                                        <button type="submit" class="btn btn-outline-danger btn-sm">
-                                            +
-                                        </button>
-                                    </form>
-                                </div>
-                                <hr class="d-flex justify-content-between">
-                                <!--
-                                    Cuando sea carrito simplemente repetir este bloque
-                                    con th:each.
-                                -->
-                            </div>
-                            <div class="summary-card">
-                                <h4 class="mb-4">
-                                    Resumen del pago
-                                </h4>
-                                <div class="d-flex justify-content-between">
-                                    <span>Saldo disponible</span>
-                                    <strong>
-                                        $
-                                        <span th:text="${customer.balance}"></span>
-                                    </strong>
-                                </div>
-                                <hr>
-                                <div class="d-flex justify-content-between">
-                                    <span>Total de la compra</span>
-                                    <strong>
-                                        $
-                                        <span th:text="${totalAmount}"></span>
-                                    </strong>
-                                </div>
-                                <hr>
-                                <div class="d-flex justify-content-between">
-                                    <span>Saldo restante</span>
-                                    <strong>
-                                        $
-                                        <span th:text="${customer.balance - totalAmount}"></span>
-                                    </strong>
-                                </div>
-                                <div class="mt-4">
-                                    <div class="alert alert-success" th:if="${customer.balance>=totalAmount}">
-                                        ✔ Saldo suficiente para realizar la compra.
+                                    <hr>
+                                    <div class="d-flex justify-content-between">
+                                        <span>Total de la compra</span>
+                                        <strong>
+                                            $
+                                            <span th:text="${totalAmount}"></span>
+                                        </strong>
                                     </div>
-                                    <div class="alert alert-danger" th:if="${customer.balance<totalAmount}">
-                                        ✖ Saldo insuficiente.
+                                    <hr>
+                                    <div class="d-flex justify-content-between">
+                                        <span>Saldo restante</span>
+                                        <strong>
+                                            $
+                                            <span th:text="${customer.balance - totalAmount}"></span>
+                                        </strong>
                                     </div>
-                                </div>
-                                <div class="d-grid gap-2 mt-4">
-                                    <a href="javascript:history.back()" class="btn btn-outline-secondary">
-                                        Cancelar
-                                    </a>
-                                    <form th:if="${buyNow}"
-                                          th:action="@{/customer/buyBook}"
-                                          method="post">
-                                        <input type="hidden"
-                                               name="id"
-                                               th:value="${cart.get(0).book.id}"/>
-                                        <input type="hidden"
-                                               name="quantity"
-                                               th:value="${cart.get(0).quantity}"/>
-                                        <button class="btn btn-success btn-lg">
-                                            Finalizar compra
-                                        </button>
-                                    </form>
-                                    <form th:unless="${buyNow}" th:action="@{/customer/cart/checkout}" method="POST">
-                                        <button
-                                            class="btn btn-success btn-lg mt-4">
-                                            Finalizar compra
-                                        </button>
-                                    </form>
+                                    <div class="mt-4">
+                                        <div class="alert alert-success" th:if="${customer.balance>=totalAmount}">
+                                            ✔ Saldo suficiente para realizar la compra.
+                                        </div>
+                                        <div class="alert alert-danger" th:if="${customer.balance<totalAmount}">
+                                            ✖ Saldo insuficiente.
+                                        </div>
+                                    </div>
+                                    <div class="d-grid gap-2 mt-4">
+                                        <a href="javascript:history.back()" class="btn btn-outline-secondary">
+                                            Cancelar
+                                        </a>
+                                        <form th:if="${buyNow}"
+                                              th:action="@{/customer/buyBook}"
+                                              method="post">
+                                            <input type="hidden"
+                                                   name="id"
+                                                   th:value="${cart.get(0).book.id}"/>
+                                            <input type="hidden"
+                                                   name="quantity"
+                                                   th:value="${cart.get(0).quantity}"/>
+                                            <button class="btn btn-success btn-lg">
+                                                Finalizar compra
+                                            </button>
+                                        </form>
+                                        <form th:unless="${buyNow}" th:action="@{/customer/cart/checkout}" method="POST">
+                                            <button
+                                                class="btn btn-success btn-lg mt-4"
+                                                onclick="return confirm('¿Seguro que querés finalizar la compra?');">>
+                                                Finalizar compra
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                <div th:if="${cart == null or cart.isEmpty()}" class="text-center py-5">
+                    <h4>No hay libros en el carrito</h4>
+                    <p class="text-muted">
+                        Agregá un libro al carrito para verlo aquí.
+                    </p>
+                    <a th:href="@{/book}" class="btn btn-primary">
+                        Ver Libros
+                    </a>
+                </div>
             </div>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>

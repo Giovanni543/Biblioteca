@@ -2,6 +2,7 @@ package com.bibloteca.beta.entities;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -43,8 +44,8 @@ public class Book implements Serializable{//no van a haber 20 ojetos del libro x
     private Boolean active;
     private String description;
     
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    private LocalDate publicationDate;
+    
+    private LocalDateTime publicationDate;
 
     @ManyToOne
     //@JoinColumn(name = "author_id")
@@ -60,7 +61,7 @@ public class Book implements Serializable{//no van a haber 20 ojetos del libro x
                 ", stock='" + stock +
                 ", pages='"+ pages+
                 ", price='"+ price +
-                // ⚠️ No ponemos password ni photo
+                ", publicationDate='"+ publicationDate+
                 '}';
     }
 }

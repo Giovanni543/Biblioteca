@@ -70,7 +70,7 @@ public class AuthorController {
 
     @PostMapping("/form")
     public String SaveAuthor(@ModelAttribute Author author,@RequestParam(required = false) MultipartFile file,
-            @RequestParam(required = false) String newPassword, ModelMap model, RedirectAttributes attr){//sobre el ModelMap
+            @RequestParam(required = false) String newPassword, ModelMap model, RedirectAttributes attr){//sobra modelMap??
         try {
             if(author.getId() == null){
                 List<Book> books = new ArrayList<>();
@@ -80,9 +80,7 @@ public class AuthorController {
             }else{
                 authorService.update(author, file, newPassword);
             }
-            
-            //ArrayList<Book> books = new ArrayList<>();//En servicio
-            //author.setListBook(books);
+
             System.out.println("se instanció y guardo el arraylist del autor");
             System.out.println("Author guardado :)");
             return "redirect:/author/profile";
@@ -137,7 +135,7 @@ public class AuthorController {
         }
     }
 
-    @GetMapping("/addBook")//hacer vista addBook de ultima y ver
+    @GetMapping("/addBook")
     @PreAuthorize("hasAnyRole('ROLE_AUTHOR')")
     public String addBook(HttpSession http, ModelMap model) {
         try {

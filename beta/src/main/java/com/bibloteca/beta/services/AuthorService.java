@@ -125,24 +125,6 @@ public class AuthorService implements UserDetailsService {
         book.setAuthor(authorDB);
         
         bookService.save(book);
-        System.out.println("Servicio de author " + book.toString());
-        System.out.println("lista: "+ authorDB.getBookList());
-        List<Book> books = authorDB.getBookList();
-
-        System.out.println("qqq");
-        books.add(book);
-        //author.setListBook(books);????
-        System.out.println("Se agrego el libro a la lista en el índice " + books.size());
-
-        int i = 1;
-        for (Book book1 : books) {
-            System.out.println(book1.toString());
-            System.out.println("iteración número " + i);
-            i++;
-        }
-        authorDB.setBookList(books);
-        authorRepository.save(authorDB);
-
     }
 
     @Transactional
@@ -224,8 +206,4 @@ public class AuthorService implements UserDetailsService {
 
         return new User(author.getEmail(), author.getPassword(), permissions);
     }
-    //restore workspace
-    //could not read contents of "C:/users/giova/AppData/Roaming/MySQL/Worckbench\"
-    //failed to open file "C:/users/giova/AppData/Roaming/MySQL/Worckbench\"
-    //no such file or directory
 }

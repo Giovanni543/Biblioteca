@@ -97,6 +97,26 @@ public class CustomerController {
             return "redirect:/customer/form";
         }
     }
+    
+    @PostMapping("/addBalance")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    public String addBalance(HttpSession http, RedirectAttributes attr) throws Exception{
+        try{
+            Customer sessionCustomer = (Customer) http.getAttribute("customersession");
+            Customer customer = customerService.findById(sessionCustomer.getId());
+            
+            customerService.addBalance(customer, 100000.0);
+            
+            attr.addFlashAttribute("Success", "Se agregaron $100.000 al saldo");
+            
+            return "redirect:/customer/profile";
+        }catch(Exception e){
+            System.out.println("ERROR");
+            e.printStackTrace();
+            attr.addFlashAttribute("error", e.getMessage());
+            return "redirect:/customer/profile";
+        }
+    }
 
     @GetMapping("/profile")
     public String showProfile(ModelMap model, HttpSession http) {
@@ -183,17 +203,6 @@ public class CustomerController {
             model.addAttribute("totalAmount", book.getPrice());
             model.addAttribute("buyNow", true);
             System.out.println(book.toString());
-
-            
-            /*if(customer.getBalance() == null){
-                customer.setBalance(0.0);
-            }*/
-            
-            if (customer.getBalance() == null || customer.getBalance() <= 0 || customer.getBalance() < book.getPrice()) {
-                System.out.println(customer.getBalance());
-                customer.setBalance(100000.0);//cien mil
-                System.out.println("RECARGA AUTOMATICA DE SALDO DE CUSTOMER");
-            }
             
             return "customer/checkout";
         } catch (Exception e) {
@@ -209,6 +218,7 @@ public class CustomerController {
             Customer customer = customerService.findById(sessionCustomer.getId());
             
             System.out.println("ENTRO AL POST ");
+            
             customerService.buyBook(customer, id, quantity);
             
             attr.addFlashAttribute("success", "Compra realizada correctamente");
@@ -226,17 +236,14 @@ public class CustomerController {
     @GetMapping("/cart")
     public String viewCart(ModelMap model, HttpSession http) throws Exception {
         
-        System.out.println("ENTRO A LA VISTA DEL CARRITO");
         Customer sessionCustomer = (Customer) http.getAttribute("customersession");
         System.out.println("###  SESSION CUSTOMER : "+ sessionCustomer);
         
         Customer customer = customerService.findById(sessionCustomer.getId());
-        System.out.println("customer ID: "+ customer.getId());
         System.out.println("---###--- CUSTOMER BD : "+ customer);
         
         List<CartItem> cart = cartItemService.getCart(customer);
         System.out.println("___### CART : "+ cart);
-        System.out.println("CUSTOMER BALANCE : "+ customer.getBalance());
         
         Double total = cartItemService.getTotal(customer);
 
@@ -244,8 +251,6 @@ public class CustomerController {
         model.addAttribute("cart", cart);
         model.addAttribute("totalAmount", total);
         model.addAttribute("buyNow", false);
-        System.out.println("CUSTOMER EN EL MODEL : "+ model.get("customer"));
-        System.out.println("================================================");
         return "customer/checkout";//La vista para ver el carrito y la del checkout son las mismas (checkout)
     }
 
@@ -255,16 +260,14 @@ public class CustomerController {
             Customer sessionCustomer = (Customer) http.getAttribute("customersession");
             Customer customer = customerService.findById(sessionCustomer.getId());
             
-            System.out.println("---###---   "+ customer.toString());
-            
             cartItemService.addBook(customer, id);
             
             attr.addFlashAttribute("success", "Libro agregado al carrito");
             System.out.println("Libro agregado al carrito");
 
             return "redirect:/customer/cart";
-            //return "redirect:/book/vieww?id=" + id;
         } catch (Exception e) {
+            System.out.println("No hay suficiente stock");
             attr.addFlashAttribute("error", e.getMessage());
             return "redirect:/book";
         }
@@ -275,8 +278,6 @@ public class CustomerController {
         try {
             Customer sessionCustomer = (Customer) http.getAttribute("customersession");
             Customer customer = customerService.findById(sessionCustomer.getId());
-            
-            System.out.println("---###--- CUSTOMER : "+ customer);
             
             cartItemService.removeBook(customer, id);
             System.out.println("---###--- REMOVE OK");
@@ -293,14 +294,18 @@ public class CustomerController {
     @PostMapping("/cart/clear")
     public String clearCart(HttpSession http, RedirectAttributes attr) throws Exception {
 
-        Customer sessionCustomer = (Customer) http.getAttribute("customersession");
-        Customer customer = customerService.findById(sessionCustomer.getId());
-        
-        cartItemService.clearCart(customer);
+        try{
+            Customer sessionCustomer = (Customer) http.getAttribute("customersession");
+            Customer customer = customerService.findById(sessionCustomer.getId());
 
-        attr.addFlashAttribute("success", "Carrito vaciado correctamente");
-
-        return "redirect:/customer/cart";
+            cartItemService.clearCart(customer);
+            attr.addFlashAttribute("success", "Carrito vaciado correctamente");
+            
+            return "redirect:/customer/cart";
+        }catch(Exception e){
+            attr.addFlashAttribute("Error", e.getMessage());
+            return "redirect:/customer/cart";
+        }
     }
     
     @PostMapping("/cart/checkout")
@@ -313,6 +318,8 @@ public class CustomerController {
         List<CartItem> items = cartItemService.getCart(customer);
         
         customerService.buyBooks(customer, items);
+        
+        cartItemService.clearCart(customer);
         
         attr.addFlashAttribute("success", "Compra realizada");
         

@@ -1,12 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.bibloteca.beta.entities;
 
 import java.io.Serializable;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.CascadeType;
@@ -35,8 +30,7 @@ public class Sale implements Serializable {
     @GenericGenerator(name = "uuid", strategy = "uuid2")
     private String id;
 
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    private LocalDate saleDate;
+    private LocalDateTime saleDate;
 
     @ManyToOne
     //@JoinColumn(name = "customer_id")
@@ -45,9 +39,9 @@ public class Sale implements Serializable {
     //@ManyToMany//Con @OneToMany Hibernate interpretará que un libro pertenece a una única venta, lo cual no es correcto para una librería.
     //private List<Book> books = new ArrayList<>();
     
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<CartItem> cartItems = new ArrayList<>();
-
+    @OneToMany(mappedBy = "sale", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SaleItem> saleItems = new ArrayList<>();
+    
     private Double totalAmount;
 
     /*public void addBook(Book book) {
@@ -58,7 +52,7 @@ public class Sale implements Serializable {
         return "{id='" + id + '\''
                 + ", saleDate='" + saleDate + '\''
                 + ", customerName='" + customer.getName() + '\''
-                + ", listBooks='" + cartItems.toString()
+                + ", listBooks='" + saleItems.toString()
                 + ", total amount='" + totalAmount
                 + // ⚠️ No ponemos password ni photo
                 '}';

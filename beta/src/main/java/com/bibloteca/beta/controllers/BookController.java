@@ -42,47 +42,11 @@ public class BookController {
         return "/book/list-books.html";
     }
 
-    @GetMapping("/form")
-    @PreAuthorize("hasAnyRole('ROLE_AUTHOR')")
-    public String showForm(ModelMap model, @RequestParam(required = false) String id) {
-        try {
-            if (id == null) {
-                model.addAttribute("book", new Book());
-                System.out.println("get de form");
-                return "/book/addBook";
-            } else {
-                Book book = bookService.findById(id);
-                model.addAttribute("book", book);
-                return "/book/addBook";
-            }
-        } catch (Exception e) {
-            model.put("error", e.getMessage());
-            return "/book/addBook";
-        }
-    }
-
-    @PostMapping("/form")
-    @PreAuthorize("hasAnyRole('ROLE_AUTHOR')")
-    public String saveBook(@ModelAttribute Book book, @RequestParam("archivo") MultipartFile file, RedirectAttributes attr) {
-        try {
-            System.out.println("post de form");
-            bookService.save(book);//capaz tenga que llamar aca al servicio de autor
-            System.out.println("libro se ah guardado :)");
-            return "redirect:/book";
-        } catch (Exception e) {
-            attr.addFlashAttribute("error", e.getMessage());
-            System.out.println("Excepcion en controlador libro: " + e.getMessage());//falta que tire los msj de error en algunos atriutos y que en caso de error, vuelva a recargar la pag con los atributos anteriores 
-            return "redirect:/book/addBook";
-        }
-    }
-
     @GetMapping("/vieww")
-    //@PreAuthorize("hasAnyRole('ROLE_AUTHOR')")
     public String viewBook(@RequestParam String id, ModelMap model, RedirectAttributes attr) {//modelmap
         try {
 
             Book book = bookService.findById(id);
-            //System.out.println(book.getName() + "  " + book.getId() + "  " + book.getCategory());
             model.addAttribute("book", book);
             System.out.println(book.toString());
             return "/book/vieww";
@@ -96,9 +60,7 @@ public class BookController {
     @GetMapping("/photo/{id}")
     @ResponseBody
     public ResponseEntity<byte[]> getPhoto(@PathVariable String id) {
-
         try {
-
             Photo photo = photoService.getOne(id);//en el controlador de author, para ver la foto de perfil uso findById
 
             return ResponseEntity.ok()
@@ -106,9 +68,7 @@ public class BookController {
                     .body(photo.getContent());
 
         } catch (Exception e) {
-
             return ResponseEntity.notFound().build();
-
         }
     }
 }

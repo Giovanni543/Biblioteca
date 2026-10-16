@@ -25,12 +25,17 @@ public interface BookRepository extends JpaRepository<Book, String> {
 
     @Query("SELECT b "
             + "FROM Book b "
+            + "ORDER BY b.publicationDate DESC")
+    List<Book> findLatestBooks(Pageable pageable);
+
+    @Query("SELECT b "
+            + "FROM Book b "
             + "WHERE b NOT IN :excluded "
             + "ORDER BY b.publicationDate DESC")
     List<Book> findLatestBooksExcluding(
             @Param("excluded") List<Book> excluded,
             Pageable pageable);
-    
+
     List<Book> findByNameContainingIgnoreCase(String name);
 
 }

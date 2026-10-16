@@ -9,7 +9,6 @@ import com.bibloteca.beta.services.PhotoService;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -52,39 +51,54 @@ public class AuthorController {
     }
 
     @GetMapping("/form")
-    public String ShowForm(ModelMap model, @RequestParam(required = false) String id){
+    public String ShowForm(ModelMap model, @RequestParam(required = false) String id) {
         try {
             if (id == null) {
                 model.addAttribute("author", new Author());
-                return ("author/form");
+                System.out.println("Author id == null");
+                return "author/form";
             } else {
                 Author author = authorService.findById(id);
+                System.out.println("id != null");
                 model.addAttribute("author", author);
-                return ("author/form");
+                return "author/form";
             }
         } catch (Exception e) {
             model.put("error", e.getMessage());
-            return ("author/form");
+            return "author/form";
         }
     }
 
     @PostMapping("/form")
-    public String SaveAuthor(@ModelAttribute Author author,@RequestParam(required = false) MultipartFile file,
-            @RequestParam(required = false) String newPassword, ModelMap model, RedirectAttributes attr){//sobra modelMap??
+    public String SaveAuthor(@ModelAttribute Author author, @RequestParam(value = "archivo", required = false) MultipartFile file,
+            @RequestParam(required = false) String newPassword, ModelMap model, RedirectAttributes attr) {//sobra modelMap??
         try {
-            if(author.getId() == null){
+            System.out.println("=== INICIO POST /author/form ===");
+            System.out.println("ID recibido: " + author.getId());
+            System.out.println("Email recibido: " + author.getEmail());
+            System.out.println("Archivo recibido: "
+                    + (file != null && !file.isEmpty()));
+
+            if (author.getId() == null || author.getId().trim().isEmpty()) {
+                System.out.println("ENTRANDO A saveNew()");
+
                 List<Book> books = new ArrayList<>();
                 author.setBookList(books);
+                System.out.println("arraylist");
                 authorService.saveNew(author);
-                System.out.println("se instanció y guardo el arraylist del autor");
-            }else{
-                authorService.update(author, file, newPassword);
-            }
+                System.out.println("SAVE NEW FINALIZADO");
+                System.out.println("ID generado: " + author.getId());
+                System.out.println("se instanció y guardo el autor");
+                return "redirect:/login";
+            } else {
+                System.out.println("ENTRANDO A update()");
 
-            System.out.println("se instanció y guardo el arraylist del autor");
-            System.out.println("Author guardado :)");
-            return "redirect:/author/profile";
+                authorService.update(author, file, newPassword);
+                System.out.println("UPDATE FINALIZADO");
+                return "redirect:/author/profile";
+            }
         } catch (Exception e) {
+             System.out.println("=== ERROR EN POST /author/form ===");
             attr.addFlashAttribute("error", e.getMessage());
             System.out.println("Exception en controlador: " + e.getMessage());
             return "redirect:/author/form";
@@ -92,44 +106,49 @@ public class AuthorController {
     }
 
     @GetMapping("/profile")
-    public String profile(ModelMap model, HttpSession http){
+    public String profile(ModelMap model, HttpSession http) {
         try {
             Author sessionAuthor = (Author) http.getAttribute("authorsession");
+            if (sessionAuthor == null) {
+                throw new Exception("No hay autor autenticado en la session");
+            }
             Author author = authorService.findById(sessionAuthor.getId());
-            
-            
-            author.getBookList().sort(Comparator.comparing(Book :: getPublicationDate, Comparator.nullsLast(Comparator.reverseOrder())));
-            
+
+            //Organiza la lista de libros oara que aparezcan en orden 
+            author.getBookList().sort(Comparator.comparing(Book::getPublicationDate, Comparator.nullsLast(Comparator.reverseOrder())));
+
             model.addAttribute("author", author);
             return "/author/profile";
         } catch (Exception e) {
+            System.out.println("Error en /author/profile: " + e.getMessage());
             model.put("error", e.getMessage());
             return "redirect:";
         }
     }
-    
+
     @GetMapping("/edit-profile")
-    public String editGet(ModelMap model, HttpSession http){
-        try{
+    public String editGet(ModelMap model, HttpSession http) {
+        try {
             Author author = (Author) http.getAttribute("authorsession");
             model.addAttribute("author", author);
-            System.out.println("author get"+ author.toString());
+            System.out.println("author get" + author.toString());
             return "/author/edit-profile";
-        }catch(Exception e){
+        } catch (Exception e) {
             model.put("error", e.getMessage());
             return "author/profile";
         }
     }
-    
+
     @PostMapping("/edit-profile")
-    public String editPost(@ModelAttribute Author author, @RequestParam("photoFile") MultipartFile file, @RequestParam(value = "newPassword", required =false)String newPassword, RedirectAttributes attr, HttpSession http){
-        try{
+    public String editPost(@ModelAttribute Author author, @RequestParam("photoFile") MultipartFile file,
+            @RequestParam(value = "newPassword", required = false) String newPassword, RedirectAttributes attr, HttpSession http) {
+        try {
             //authorService.update(author, file, newPassword);
             Author actualizado = authorService.update(author, file, newPassword);
             http.setAttribute("authorsession", actualizado);
             attr.addFlashAttribute("succed", "edit del perfil de author EXITOSO");
             return "redirect:/logout";
-        }catch(Exception e){
+        } catch (Exception e) {
             attr.addFlashAttribute("error", e.getMessage());
             return "/index";
         }
@@ -153,22 +172,22 @@ public class AuthorController {
 
     @PostMapping("/addBook")
     @PreAuthorize("hasAnyRole('ROLE_AUTHOR')")
-    public String saveBook(HttpSession http, @ModelAttribute Book book, RedirectAttributes attr, @RequestParam("photoFile") MultipartFile file){
+    public String saveBook(HttpSession http, @ModelAttribute Book book, RedirectAttributes attr, @RequestParam("photoFile") MultipartFile file) {
         try {
             System.out.println("entro en el post");
             Author author = (Author) http.getAttribute("authorsession");
             Photo photo = photoService.save(file);
-            
+
             book.setPhoto(photo);
-            
+
             System.out.println(author.toString());
             System.out.println(author.getId());
-            if(author.getBookList() == null){
+            if (author.getBookList() == null) {
                 System.out.println("La lista esta en null");
-            }else{
+            } else {
                 System.out.println("lista no vacia");
             }
-            
+
             authorService.assignBook(book, author.getId());
             System.out.println("libro con autor guardado");
             return "redirect:/book";
@@ -178,14 +197,14 @@ public class AuthorController {
             return "redirect:/book/addBook";
         }
     }
-    
+
     @GetMapping("/photo/{id}")
     @ResponseBody
-    public ResponseEntity<byte[]> mostrarImagen(@PathVariable String id) throws Exception {
+    public ResponseEntity<byte[]> mostrarImagen(@PathVariable String id) throws Exception {//throws o hacer try/catch?
 
         Photo photo = photoService.findById(id);//preguntar por este procedimiento porque lo tengo que hacer optional y no photo
 
-        if (photo != null ) {
+        if (photo != null) {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.valueOf(photo.getMime()));
             return new ResponseEntity<>(photo.getContent(), headers, HttpStatus.OK);

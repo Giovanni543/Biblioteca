@@ -48,7 +48,6 @@ public class Book implements Serializable{//no van a haber 20 ojetos del libro x
     private LocalDateTime publicationDate;
 
     @ManyToOne
-    //@JoinColumn(name = "author_id")
     private Author author;
     
     

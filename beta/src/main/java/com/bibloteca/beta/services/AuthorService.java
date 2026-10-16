@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.bibloteca.beta.repositories.AuthorRepository;
-import java.util.Optional;
 import javax.servlet.http.HttpSession;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -17,7 +16,6 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -42,11 +40,12 @@ public class AuthorService implements UserDetailsService {
 
     @Transactional(value = Transactional.TxType.REQUIRED, rollbackOn = Exception.class)
     public void saveNew(Author author) throws Exception {
-
-        validate(author);
-        activateIfNew(author);
         
-        System.out.println("Paso validación y activado");
+        activateIfNew(author);
+        validate(author);
+        System.out.println("Paso validacion");
+        
+        System.out.println("Paso activado");
 
         String passwordEncripted = passwordEncoder.encode(author.getPassword());
         author.setPassword(passwordEncripted);
@@ -88,7 +87,7 @@ public class AuthorService implements UserDetailsService {
     private void activateIfNew(Author author) throws Exception {
         if (author.getAlive() == null || author.getAlive().equals(false)) {
             author.setAlive(Boolean.TRUE);
-            author.setRole(Role.USER);
+            author.setRole(Role.AUTHOR);
         }
     }
 
@@ -129,11 +128,10 @@ public class AuthorService implements UserDetailsService {
 
     @Transactional
     public Author findById(String id) throws Exception {
-        Author author = authorRepository.getById(id);
-        if (author == null) {
-            throw new Exception("El autor a buscar no se encontro con ese id");
+        if (id == null || id.trim().isEmpty()) {
+            throw new Exception("El autor a buscar no se encontro con ese id: Id nulo o vacio");
         }
-        return author;
+        return authorRepository.findById(id).orElseThrow(() -> new Exception("Autor no encontrado"));
     }
 
     @Transactional

@@ -108,7 +108,12 @@ public class BookService {
         int maxBooks = 8;
         Pageable pageable =PageRequest.of(0, maxBooks);
         
-        List<Book> bestSelling = bookRepository.findBestSellingBooks(pageable);//Los libros mas vendidos
+        List<Book> bestSelling = bookRepository.findBestSellingBooks(pageable);//Los libros mas vendidos ordenados por cantidad vendida
+        
+        if(bestSelling.isEmpty()){
+            return bookRepository.findLatestBooks(PageRequest.of(0, maxBooks));//ultimos libros publicados para conpletar los 8 libros
+        }
+        
         
         if(bestSelling.size() >= maxBooks){//si estan los 8, retorno
             System.out.println("Se encontraron los 8 libros mas vendidos ");
@@ -119,7 +124,7 @@ public class BookService {
         
         Pageable remainingPageable = PageRequest.of(0, remaining);//Si faltan para llegar a 8, completo con libros publicados recientemente
         
-        List <Book> latest = bookRepository.findLatestBooksExcluding(bestSelling, remainingPageable);
+        List <Book> latest = bookRepository.findLatestBooksExcluding(bestSelling, remainingPageable);//últimos publicados, pero excluyendo los que ya aparecieron entre los más vendidos.
         
         bestSelling.addAll(latest);
         return bestSelling;

@@ -24,9 +24,18 @@ public class MainController {
     }
 
     @GetMapping
-    public String index(ModelMap model) {
-        List<Book> books = bookService.getBooksForIndex();
+    public String index(@RequestParam (required = false) String name,ModelMap model) throws Exception {
+        
+        List<Book> books;
+        
+        if(name == null || name.trim().isEmpty()){
+            books = bookService.getBooksForIndex();
+        }else{
+            books = bookService.findByName(name);
+        }
+        
         model.addAttribute("books", books);
+        model.addAttribute("search", name);
         
         return "index.html";
     }

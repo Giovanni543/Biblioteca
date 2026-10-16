@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.bibloteca.beta.repositories.CustomerRepository;
 import com.bibloteca.beta.repositories.SaleRepository;
 import java.time.LocalDateTime;
-import java.util.Optional;
 import javax.servlet.http.HttpSession;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -22,7 +21,6 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -38,10 +36,10 @@ public class CustomerService implements UserDetailsService {
     private SaleRepository saleRepository;
     private CartItemService cartItemService;
     private final PasswordEncoder passwordEncoder;
-    //private SaleRepository
 
     @Autowired//la inyeccion de dependencia en los constructores nos permite hacer tessting despues de manera mas sencilla
-    public CustomerService(CustomerRepository customerRepository, PhotoService photoService, BookService bookService, SaleRepository saleRepository, CartItemService cartItemService, PasswordEncoder passwordEncoder) {
+    public CustomerService(CustomerRepository customerRepository, PhotoService photoService, BookService bookService,
+            SaleRepository saleRepository, CartItemService cartItemService, PasswordEncoder passwordEncoder) {
         this.customerRepository = customerRepository;
         this.photoService = photoService;
         this.bookService = bookService;

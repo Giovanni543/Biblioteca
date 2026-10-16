@@ -16,6 +16,7 @@
         <div class="row">
             <!-- Columna izquierda: datos -->
             <div class="col-md-8">
+                
                 <form th:action="@{/customer/edit-profile}" method="POST" th:object="${customer}" enctype="multipart/form-data" class="form container m-5 justify-content-between float-left">
                     <input type="hidden" th:field="*{id}"/>
                     <div class="mb-3">

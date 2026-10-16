@@ -36,9 +36,21 @@ public class BookController {
     }
 
     @GetMapping
-    public String showBooks(ModelMap model) {
-        List<Book> books = bookService.getAll();
-        model.addAttribute("books", books);
+    public String showBooks(ModelMap model, @RequestParam(required = false) String name) {
+        try {
+            List<Book> books;
+            if (name == null || name.trim().isEmpty()) {
+                books = bookService.getAll();
+            } else {
+                books = bookService.findByName(name);
+            }
+            model.addAttribute("books", books);
+            model.addAttribute("search", name);
+            
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
+        }
+        
         return "/book/list-books.html";
     }
 

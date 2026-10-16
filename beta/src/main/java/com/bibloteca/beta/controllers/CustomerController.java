@@ -5,19 +5,13 @@ import com.bibloteca.beta.entities.Customer;
 import com.bibloteca.beta.entities.Photo;
 import com.bibloteca.beta.entities.Sale;
 import com.bibloteca.beta.entities.CartItem;
-import com.bibloteca.beta.repositories.PhotoRepository;
 import com.bibloteca.beta.services.BookService;
 import com.bibloteca.beta.services.CartItemService;
 import com.bibloteca.beta.services.CustomerService;
 import com.bibloteca.beta.services.PhotoService;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import static java.util.Spliterators.iterator;
 import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -27,9 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -100,7 +92,7 @@ public class CustomerController {
     
     @PostMapping("/addBalance")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
-    public String addBalance(HttpSession http, RedirectAttributes attr) throws Exception{
+    public String addBalance(HttpSession http, RedirectAttributes attr) throws Exception{//throws o hacer try/catch?
         try{
             Customer sessionCustomer = (Customer) http.getAttribute("customersession");
             Customer customer = customerService.findById(sessionCustomer.getId());
@@ -151,7 +143,8 @@ public class CustomerController {
     }
 
     @PostMapping("/edit-profile")
-    public String editPost(@ModelAttribute Customer customer, @RequestParam("photoFile") MultipartFile file, @RequestParam(value = "newPassword", required = false) String newPassword, RedirectAttributes attr, HttpSession http) {
+    public String editPost(@ModelAttribute Customer customer, @RequestParam("photoFile") MultipartFile file, 
+            @RequestParam(value = "newPassword", required = false) String newPassword, RedirectAttributes attr, HttpSession http) {
         try {
 
             Customer actualizado = customerService.update(customer, file, newPassword);//La foto y Contraseña los gestiono separado de los demas atributos
@@ -168,7 +161,7 @@ public class CustomerController {
 
     @GetMapping("/photo/{id}")
     @ResponseBody
-    public ResponseEntity<byte[]> mostrarImagen(@PathVariable String id) throws Exception {
+    public ResponseEntity<byte[]> mostrarImagen(@PathVariable String id) throws Exception {//throws o hacer try/catch?
 
         Photo photo = photoService.findById(id);//preguntar por este procedimiento porque lo tengo que hacer optional y no photo
 
@@ -181,7 +174,7 @@ public class CustomerController {
         }
     }
 
-    @GetMapping("/buyBook")//tengo que ver como añado compras "sale" al purchased history
+    @GetMapping("/buyBook")
     public String buyGet(@RequestParam String id, ModelMap model, HttpSession http) {
         try {
             Customer sessionCustomer = (Customer) http.getAttribute("customersession");
@@ -234,7 +227,7 @@ public class CustomerController {
     }
 
     @GetMapping("/cart")
-    public String viewCart(ModelMap model, HttpSession http) throws Exception {
+    public String viewCart(ModelMap model, HttpSession http) throws Exception {//throws o hacer try/catch?
         
         Customer sessionCustomer = (Customer) http.getAttribute("customersession");
         System.out.println("###  SESSION CUSTOMER : "+ sessionCustomer);
@@ -292,7 +285,7 @@ public class CustomerController {
     }
 
     @PostMapping("/cart/clear")
-    public String clearCart(HttpSession http, RedirectAttributes attr) throws Exception {
+    public String clearCart(HttpSession http, RedirectAttributes attr) {
 
         try{
             Customer sessionCustomer = (Customer) http.getAttribute("customersession");
@@ -309,7 +302,7 @@ public class CustomerController {
     }
     
     @PostMapping("/cart/checkout")
-    public String checkoutCart(HttpSession http, RedirectAttributes attr) throws Exception{
+    public String checkoutCart(HttpSession http, RedirectAttributes attr) throws Exception{//throws o hacer try/catch?
         
         System.out.println("ENTRO AL CHECKOUT DE CARRITO");
         Customer sessionCustomer = (Customer) http.getAttribute("customersession");

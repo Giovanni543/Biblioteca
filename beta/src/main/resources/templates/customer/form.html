@@ -1,48 +1,118 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <head>
-        <title>Customer Form</title>
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href="Styles.css" rel="stylesheet">
+        
+        <title>Registro de Customer</title>
+
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" 
               rel="stylesheet" 
               integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" 
               crossorigin="anonymous">
+        <script src="https://kit.fontawesome.com/c092a80870.js" crossorigin="anonymous"></script>
+        <style>
+            .register-card {
+                max-width: 750px;
+                margin: 50px auto;
+            }
+            .register-header {
+                background-color: #198754;
+                color: white;
+            }
+            .form-label {
+                font-weight: 600;
+            }
+        </style>
     </head>
-    <body>
+    <body class="bg-light">
         <nav th:replace="fragments/fragments::navbar"></nav>
-        <h1>Crear Customer</h1>
-        <div>
-            <form th:action="@{/customer/form}" method="POST" th:object="${customer}" enctype="multipart/form-data">
-                <input type="hidden" th:field="*{id}"> <!--!!!-->
-                <label class="form-label"> Nombre:
-                    <input type="text" th:field="*{name}" placeholder="Nombre"/>
-                </label>
-                <label class="form-label"> Apellido:
-                    <input type="text" th:field="*{lastName}" placeholder="Apellido" />
-                </label>
-                <label class="form-label"> Gmail:
-                    <input type="text" th:field="*{email}" placeholder="Email" autocomplete="off"/>
-                </label>
-                <label class="form-label"> Contraseña:
-                    <input type="text" th:field="*{password}" placeholder="Contraseña"/>
-                </label>
-                <label class="form-label"> DNI:
-                    <input type="text" th:field="*{dni}" placeholder="DNI"/>
-                </label>
-                <label class="form-label"> Foto De Perfil:
-                    <input type="file" name="archivo" accept="image/*"/>
-                <input type='submit' value='guardar'/>
-                <!--<input type="file" name="picture" accept="image/*" >-->
-            </form>
-            
-            <!--<p th:if="${error != null}" th:text="${error}" style="color : red;"></p>-->
-            <p class="text-danger"  th:text="${error != null ? error : ''}"></p>
-
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" 
-                integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" 
+        <div class="container">
+            <div class="card shadow border-0 register-card">
+                <div class="card-header register-header">
+                    <h3 class="mb-0">
+                        Crear cuenta
+                    </h3>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-muted mb-4">
+                        Completá tus datos para registrarte como cliente.
+                    </p>
+                    <form th:action="@{/customer/form}"
+                          method="POST"
+                          th:object="${customer}"
+                          enctype="multipart/form-data">
+                        <input type="hidden" th:field="*{id}">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    Nombre
+                                </label>
+                                <input type="text"
+                                       th:field="*{name}"
+                                       class="form-control"
+                                       placeholder="Nombre">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    Apellido
+                                </label>
+                                <input type="text" th:field="*{lastName}"
+                                       class="form-control" placeholder="Apellido">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    Dirección de mail
+                                </label>
+                                <input type="email" th:field="*{email}" class="form-control"
+                                       placeholder="ejemplo@gmail.com" 
+                                       autocomplete="off">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    Contraseña
+                                </label>
+                                <input type="password" th:field="*{password}"
+                                       class="form-control" placeholder="Contraseña"
+                                       autocomplete="new-password">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    DNI
+                                </label>
+                                <input type="text" th:field="*{dni}"
+                                       class="form-control" placeholder="DNI">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    Foto de perfil
+                                </label>
+                                <input type="file" name="archivo" class="form-control"
+                                       accept="image/*">
+                            </div>
+                        </div>
+                        <div th:if="${error != null}" class="alert alert-danger mt-3"
+                             th:text="${error}">
+                        </div>
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit"
+                                    class="btn btn-success">
+                                Crear cuenta
+                            </button>
+                            <a th:href="@{/}"
+                               class="btn btn-outline-secondary">
+                                Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+                integrity="sha384-ka7Sk0Glnw4gmtz2MlWZ6TtXl6FfN5m8vG3v5k1xXnK9qV6fYQJm3kJ7fY8x5z7J"
                 crossorigin="anonymous">
         </script>
     </body>
